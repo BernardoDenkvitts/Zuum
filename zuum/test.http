@@ -1,0 +1,17 @@
+###
+
+POST http://localhost:8080/trips/request
+Content-Type: application/json
+
+{
+    "user_id": "9",
+    "price": 15.99,
+    "origin": {
+        "x": -46.6333,
+        "y": -23.5505
+    },
+    "destiny": {
+        "x": -46.6543,
+        "y": -23.5872
+    }
+}
