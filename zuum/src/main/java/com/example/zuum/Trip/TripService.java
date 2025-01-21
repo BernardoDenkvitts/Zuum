@@ -6,6 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.zuum.Common.utils;
 import com.example.zuum.Common.Exception.NotFoundException;
@@ -19,14 +20,21 @@ import com.example.zuum.User.UserRepository;
 import com.example.zuum.User.UserType;
 
 @Service
-public record TripService(
-    TripRepository tripRepository,
-    UserRepository userRepository,
-    DriverNotifier driverNotifier
-) {
+public class TripService {
+
+    private final TripRepository tripRepository;
+    private final  UserRepository userRepository;
+    private final  DriverNotifier driverNotifier;
 
     static Logger LOGGER = utils.getLogger(TripService.class);
 
+    public TripService(TripRepository tripRepository, UserRepository userRepository, DriverNotifier driverNotifier) {
+        this.tripRepository = tripRepository;
+        this.userRepository = userRepository;
+        this.driverNotifier = driverNotifier;
+    }
+
+    @Transactional
     public TripModel requestTrip(NewTripDTO dto) {
         UserModel user = userRepository.findById(dto.userId())
                 .orElseThrow(() -> new NotFoundException("Passanger with id " + dto.userId()));
