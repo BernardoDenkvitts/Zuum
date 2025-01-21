@@ -1,34 +1,28 @@
 package com.example.zuum;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.Date;
+
 import java.util.List;
 
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
-import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
-import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
+import com.example.zuum.Driver.DriverRepository;
 import com.example.zuum.Trip.TripModel;
 import com.example.zuum.Trip.TripRepository;
-import com.example.zuum.Trip.Dto.TripRequestNotificationDTO;
+
 import com.example.zuum.User.UserModel;
 import com.example.zuum.User.UserRepository;
 
 @SpringBootApplication
+@EnableScheduling
 public class Main implements CommandLineRunner {
 
 	public static void main(String[] args) {
@@ -38,15 +32,25 @@ public class Main implements CommandLineRunner {
 	@Autowired
 	UserRepository repo;
 	@Autowired
+	DriverRepository driverRepo;
+	@Autowired
 	TripRepository tripRepo;
 
 	@Bean
 	public String firstData() {
-		// UserModel passanger = new UserModel(null, "Bernardo", "bernardaoarcari@gmail.com", UserType.PASSANGER, "5554999962940", LocalDate.of(2004, 5, 5));
-		// UserModel driver = new UserModel(null, "Jorge", "jorgesampaio@gmail.com", UserType.DRIVER, "5554999962940", LocalDate.of(2004, 5, 5));
+		// UserModel passanger = new UserModel(null, "Bernardo", "bernardoarcari@gmail.com", UserType.PASSANGER, "5554999962940", LocalDate.of(2004, 5, 5), new ArrayList<>());
+		// UserModel user = new UserModel(null, "Jorge", "jorge@gmail.com", UserType.DRIVER, "55549904231", LocalDate.of(1995, 10, 2), new ArrayList<>());
 
-		// repo.saveAll(List.of(passanger, driver));
-		return "salvo";
+		// GeometryFactory geometryFactory = new GeometryFactory();
+        // Coordinate originCoordinate = new Coordinate(15.0000, -30.0000);
+        // Point currLocation = geometryFactory.createPoint(originCoordinate);
+		
+		// DriverModel driver = new DriverModel(null, "ABC12321", "Civic", "12321SAD", currLocation, user);
+
+		// repo.save(passanger);
+		// driverRepo.save(driver);
+
+		return "saved";
 	}
 
 	@Override
@@ -57,17 +61,18 @@ public class Main implements CommandLineRunner {
 			System.out.println(userModel.getId());
 		}
 
-		// GeometryFactory geometryFactory = new GeometryFactory();
-        // Coordinate originCoordinate = new Coordinate(15.0000, -30.0000);
-        // Point origin = geometryFactory.createPoint(originCoordinate);
+		GeometryFactory geometryFactory = new GeometryFactory();
+        Coordinate originCoordinate = new Coordinate(15.0000, -30.0000);
+        Point origin = geometryFactory.createPoint(originCoordinate);
 
-		// Coordinate destinyCoordinate = new Coordinate(16.5000, -31.5000);
-        // Point destiny = geometryFactory.createPoint(destinyCoordinate);
+		Coordinate destinyCoordinate = new Coordinate(16.5000, -31.5000);
+        Point destiny = geometryFactory.createPoint(destinyCoordinate);
 
-		// BigDecimal valor = BigDecimal.valueOf(20.10);
+		BigDecimal valor = BigDecimal.valueOf(20.10);
 
-		// TripModel novaTrip = new TripModel(9, valor, origin, destiny);
-		// tripRepo.save(novaTrip);
+		// TripModel firstTrip = new TripModel(users.get(0), valor, origin, destiny);
+		// TripModel secondTrip = new TripModel(users.get(2), valor, origin, destiny);
+		// tripRepo.saveAll(List.of(firstTrip, secondTrip));
 	}
 
 }

@@ -60,6 +60,8 @@ public class TripModel {
     @Column(columnDefinition = "geography(Point, 4326)")
     private Point destiny;
 
+    public TripModel() {}
+
     public TripModel(Integer id, UserModel user, DriverModel driver, TripStatus status, BigDecimal price,
             LocalDateTime createdAt, LocalTime endTime, Point origin, Point destiny) {
         this.id = id;
