@@ -7,6 +7,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 
 import com.example.zuum.Trip.TripModel;
+import com.example.zuum.User.UserModel;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record NewTripDTO(
@@ -17,11 +18,11 @@ public record NewTripDTO(
     Point destiny
 ) {
 
-    public TripModel toTripModel() {
+    public TripModel toTripModel(UserModel user) {
         GeometryFactory geometryFactory = new GeometryFactory();
         Point originPoint = geometryFactory.createPoint(new Coordinate(origin.getX(), origin.getY()));
         Point destinyPoint = geometryFactory.createPoint(new Coordinate(destiny.getX(), destiny.getY()));
 
-        return new TripModel(userId, price, originPoint, destinyPoint);
+        return new TripModel(user, price, originPoint, destinyPoint);
     }
 }

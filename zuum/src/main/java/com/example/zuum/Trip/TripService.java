@@ -14,12 +14,12 @@ import com.example.zuum.User.UserType;
 
 @Service
 public record TripService(
-    TripRepository tripRepository,
-    UserRepository userRepository,
-    DriverNotifier driverNotifier
-) {
+        TripRepository tripRepository,
+        UserRepository userRepository,
+        DriverNotifier driverNotifier) {
     public TripModel requestTrip(NewTripDTO dto) {
-        UserModel user = userRepository.findById(dto.userId()).orElseThrow(() -> new NotFoundException("Passanger with id " + dto.userId()));
+        UserModel user = userRepository.findById(dto.userId())
+                .orElseThrow(() -> new NotFoundException("Passanger with id " + dto.userId()));
 
         if (user.getUserType() == UserType.DRIVER) {
             throw new DriverRequestTripException();
@@ -29,10 +29,14 @@ public record TripService(
             throw new TripRequestExistsException();
         }
 
-        TripModel newTripRequest = tripRepository.save(dto.toTripModel());
+        TripModel newTripRequest = tripRepository.save(dto.toTripModel(user));
 
-        driverNotifier.newTripRequest(new TripRequestNotificationDTO(newTripRequest.getId(), newTripRequest.getUserId(), newTripRequest.getStatus(), newTripRequest.getPrice(), newTripRequest.getOrigin(), newTripRequest.getDestiny()));
+        driverNotifier.newTripRequest(
+            new TripRequestNotificationDTO(newTripRequest.getId(),
+            newTripRequest.getPassanger().getId(), newTripRequest.getStatus(), newTripRequest.getPrice(),
+            newTripRequest.getOrigin(), newTripRequest.getDestiny())
+        );
 
         return newTripRequest;
     }
-} 
+}
