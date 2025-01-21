@@ -19,6 +19,16 @@ public class ExceptionsHandler {
         return ProblemDetail.forStatus(statusCode.value());
     }
 
+    @ExceptionHandler(Exception.class)
+    public ProblemDetail handleInternalServerError(RuntimeException ex) {
+        ProblemDetail pb = getProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR);
+        pb.setTitle("Internal Server Error");
+        pb.setType(URI.create("Zuum/internal-server-error"));
+        pb.setDetail("Internal Server Error");
+
+        return pb;
+    }
+
     @ExceptionHandler(NotFoundException.class)
     public ProblemDetail handlerNotFound(NotFoundException ex) {
         ProblemDetail pb = getProblemDetail(HttpStatus.NOT_FOUND);
