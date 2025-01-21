@@ -61,4 +61,8 @@ public class DriverModel {
         this.user = user;
     }
 
+    public void updateLocation(Point newLocation) {
+        this.currLocation = newLocation;
+    }
+
 }

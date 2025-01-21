@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record LocationDTO(
     @JsonProperty("driver_id")
     Integer driverId,
-    Point origin,
-    Point destiny
+    @JsonProperty("curr_location")
+    Point currLocation
 ) {
 }
