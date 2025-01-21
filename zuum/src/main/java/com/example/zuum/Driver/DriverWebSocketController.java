@@ -1,10 +1,11 @@
 package com.example.zuum.Driver;
 
+import java.security.Principal;
+
 import org.slf4j.Logger;
-import org.springframework.messaging.handler.annotation.Header;
+
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import com.example.zuum.Common.utils;
@@ -12,11 +13,11 @@ import com.example.zuum.Driver.Dto.LocationDTO;
 import com.example.zuum.Trip.Dto.TripRequestNotificationDTO;
 
 @Controller
-@MessageMapping("/ws/drivers")
-public record DriverWebSocketController(DriverService service, SimpMessagingTemplate template) {
+@MessageMapping("/drivers")
+public record DriverWebSocketController(DriverService service, DriverNotifier notifier) {
     
     static Logger LOGGER = utils.getLogger(DriverWebSocketController.class);
-    
+
     @MessageMapping("/request")
     @SendTo("/topic/trip-request")
     public TripRequestNotificationDTO handleNewTripRequest(TripRequestNotificationDTO notificationDTO) {
@@ -26,9 +27,10 @@ public record DriverWebSocketController(DriverService service, SimpMessagingTemp
     }
 
     @MessageMapping("/location")
-    public void updateCurrentLocation(LocationDTO dto, @Header("simpSessionId") String sessionId) {
+    public void updateCurrentLocation(LocationDTO dto, Principal principal) {
         LOGGER.info("Updating driver {} location", dto.driverId());
         service.updateLocation(dto);
+        notifier.notifySpecificDriver(principal, "/queue/reply", "Location updated sucessfully");
     }
 
 }
