@@ -8,6 +8,8 @@ import org.locationtech.jts.geom.Point;
 
 import com.example.zuum.Config.Jackson.PointDeserializer;
 import com.example.zuum.Config.Jackson.PointSerializer;
+import com.example.zuum.Driver.DriverModel;
+import com.example.zuum.User.UserModel;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
@@ -18,6 +20,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -27,11 +31,13 @@ public class TripModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "user_id")
-    private Integer userId;
+    @ManyToOne
+    @JoinColumn(name = "passanger_id", referencedColumnName = "id")
+    private UserModel passanger;
 
-    @Column(name = "driver_id")
-    private Integer driverId;
+    @ManyToOne
+    @JoinColumn(name = "driver_id", referencedColumnName = "id")
+    private DriverModel driver;
 
     @Enumerated(EnumType.STRING)
     private TripStatus status;
@@ -46,19 +52,19 @@ public class TripModel {
 
     @JsonDeserialize(using = PointDeserializer.class)
     @JsonSerialize(using = PointSerializer.class)
-    @Column(columnDefinition = "geography")
+    @Column(columnDefinition = "geography(Point, 4326)")
     private Point origin;
 
     @JsonDeserialize(using = PointDeserializer.class)
     @JsonSerialize(using = PointSerializer.class)
-    @Column(columnDefinition = "geography")
+    @Column(columnDefinition = "geography(Point, 4326)")
     private Point destiny;
 
-    public TripModel(Integer id, Integer userId, Integer driverId, TripStatus status, BigDecimal price,
+    public TripModel(Integer id, UserModel user, DriverModel driver, TripStatus status, BigDecimal price,
             LocalDateTime createdAt, LocalTime endTime, Point origin, Point destiny) {
         this.id = id;
-        this.userId = userId;
-        this.driverId = driverId;
+        this.passanger = user;
+        this.driver = driver;
         this.status = status;
         this.price = price;
         this.createdAt = createdAt;
@@ -67,8 +73,8 @@ public class TripModel {
         this.destiny = destiny;
     }
 
-    public TripModel(Integer userId, BigDecimal price, Point origin, Point destiny) {
-        this.userId = userId;
+    public TripModel(UserModel user, BigDecimal price, Point origin, Point destiny) {
+        this.passanger = user;
         this.status = TripStatus.PENDING;
         this.price = price;
         this.createdAt = LocalDateTime.now();
@@ -81,12 +87,12 @@ public class TripModel {
         return id;
     }
 
-    public Integer getUserId() {
-        return userId;
+    public UserModel getPassanger() {
+        return passanger;
     }
 
-    public Integer getDriverId() {
-        return driverId;
+    public DriverModel getDriver() {
+        return driver;
     }
 
     public TripStatus getStatus() {
