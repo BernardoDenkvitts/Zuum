@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.example.zuum.Trip.TripModel;
 import com.example.zuum.User.CustomValidation.MaxAge;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -96,6 +95,10 @@ public class UserModel {
 
     public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
     }
 
     public List<TripModel> getTrips() {

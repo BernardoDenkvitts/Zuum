@@ -19,8 +19,6 @@ public class MaxAgeValidator implements ConstraintValidator<MaxAge, LocalDate> {
 
     @Override
     public boolean isValid(LocalDate value, ConstraintValidatorContext context) {
-        System.out.println("TESTANDO AQUI AMIGO");
-
         if (value == null) {
             return true;
         }

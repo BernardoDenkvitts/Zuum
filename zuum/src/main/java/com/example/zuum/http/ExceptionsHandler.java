@@ -22,6 +22,7 @@ import com.example.zuum.Common.Exception.NotFoundException;
 import com.example.zuum.Trip.exception.DriverRequestTripException;
 import com.example.zuum.Trip.exception.TripRequestExistsException;
 import com.example.zuum.User.Exception.EmailAlreadyInUseException;
+import com.example.zuum.User.Exception.MissingDriverProfileException;
 
 import jakarta.validation.ValidationException;
 
@@ -55,7 +56,8 @@ public class ExceptionsHandler {
         return pb;
     }
 
-    @ExceptionHandler({ DriverRequestTripException.class, MethodArgumentNotValidException.class, ValidationException.class, HttpMessageNotReadableException.class })
+    @ExceptionHandler({ DriverRequestTripException.class, MethodArgumentNotValidException.class,
+            ValidationException.class, HttpMessageNotReadableException.class, MissingDriverProfileException.class })
     public ProblemDetail handleUnprocessableEntity(Exception ex) {
         ProblemDetail pb = getProblemDetail(HttpStatus.UNPROCESSABLE_ENTITY);
         pb.setTitle("Unprocessable Entity");
@@ -67,15 +69,15 @@ public class ExceptionsHandler {
             MethodArgumentNotValidException validationException = (MethodArgumentNotValidException) ex;
             List<FieldError> errors = validationException.getFieldErrors();
             List<String> errorMessage = errors.stream()
-                                        .map(error -> String.format("%s: %s", error.getField(), error.getDefaultMessage()))
-                                        .collect(Collectors.toList());
+                    .map(error -> String.format("%s: %s", error.getField(), error.getDefaultMessage()))
+                    .collect(Collectors.toList());
             pb.setDetail(errorMessage.toString());
         }
 
         return pb;
     }
 
-    @ExceptionHandler({TripRequestExistsException.class, EmailAlreadyInUseException.class})
+    @ExceptionHandler({ TripRequestExistsException.class, EmailAlreadyInUseException.class })
     public ProblemDetail handleConflict(RuntimeException ex) {
         ProblemDetail pb = getProblemDetail(HttpStatus.CONFLICT);
         pb.setTitle("Conflict");
