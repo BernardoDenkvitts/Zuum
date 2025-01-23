@@ -1,12 +1,13 @@
 package com.example.zuum.Driver;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.locationtech.jts.geom.Point;
 
 import com.example.zuum.Config.Jackson.PointDeserializer;
 import com.example.zuum.Config.Jackson.PointSerializer;
-import com.example.zuum.Trip.TripModel;
+import com.example.zuum.Ride.RideModel;
 import com.example.zuum.User.UserModel;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -47,12 +48,11 @@ public class DriverModel {
     private UserModel user;
 
     @OneToMany(mappedBy = "driver")
-    private List<TripModel> trips;
+    private List<RideModel> rides = new ArrayList<>();
 
     public DriverModel() {}
 
-    public DriverModel(Integer id, String plate, String carModel, String driverLicense, Point currLocation,
-            UserModel user) {
+    public DriverModel(Integer id, String plate, String carModel, String driverLicense, Point currLocation, UserModel user) {
         this.id = id;
         this.plate = plate;
         this.carModel = carModel;
@@ -63,6 +63,10 @@ public class DriverModel {
 
     public void updateLocation(Point newLocation) {
         this.currLocation = newLocation;
+    }
+
+    public List<RideModel> getRides() {
+        return rides;
     }
 
 }

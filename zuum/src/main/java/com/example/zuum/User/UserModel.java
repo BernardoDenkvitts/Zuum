@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.zuum.Trip.TripModel;
+import com.example.zuum.Ride.RideModel;
 import com.example.zuum.User.CustomValidation.MaxAge;
 
 import jakarta.persistence.Column;
@@ -44,7 +44,7 @@ public class UserModel {
     private LocalDate birthday;
 
     @OneToMany(mappedBy = "id")
-    private List<TripModel> trips = new ArrayList<>();
+    private List<RideModel> rides = new ArrayList<>();
     
     public UserModel() {}
 
@@ -101,8 +101,8 @@ public class UserModel {
         this.userType = userType;
     }
 
-    public List<TripModel> getTrips() {
-        return trips;
+    public List<RideModel> getRides() {
+        return rides;
     }
 
 }
