@@ -5,17 +5,23 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.zuum.Common.utils;
 import com.example.zuum.Common.Exception.NotFoundException;
+import com.example.zuum.Driver.DriverModel;
 import com.example.zuum.Driver.DriverNotifier;
+import com.example.zuum.Driver.DriverRepository;
 import com.example.zuum.Ride.Dto.NewRideDTO;
 import com.example.zuum.Ride.Dto.RideRequestNotificationDTO;
 import com.example.zuum.Ride.exception.DriverRequestRideException;
 import com.example.zuum.Ride.exception.RideRequestExistsException;
+import com.example.zuum.Ride.exception.UserIsNotDriverException;
 import com.example.zuum.User.UserModel;
 import com.example.zuum.User.UserRepository;
 import com.example.zuum.User.UserType;
@@ -25,13 +31,15 @@ public class RideService {
 
     private final RideRepository rideRepository;
     private final UserRepository userRepository;
+    private final DriverRepository driverRepository;
     private final DriverNotifier driverNotifier;
 
     static Logger LOGGER = utils.getLogger(RideService.class);
 
-    public RideService(RideRepository rideRepository, UserRepository userRepository, DriverNotifier driverNotifier) {
+    public RideService(RideRepository rideRepository, UserRepository userRepository, DriverRepository driverRepository, DriverNotifier driverNotifier) {
         this.rideRepository = rideRepository;
         this.userRepository = userRepository;
+        this.driverRepository = driverRepository;
         this.driverNotifier = driverNotifier;
     }
 
@@ -66,6 +74,16 @@ public class RideService {
         for (RideModel ride : expiredRides) {
             rideRepository.delete(ride);
         }
+    }
+
+    public Page<RideModel> getRecentPendingRidesByLocation(Integer driverId, double lat, double longt, Pageable pageable) {
+        DriverModel driver = driverRepository.findById(driverId).orElseThrow(() -> new NotFoundException("Driver with id " + driverId));
+
+        if (driver.getUser().getUserType() == UserType.PASSANGER) {
+            throw new UserIsNotDriverException();
+        }
+
+        return rideRepository.findPendingNearbyRides(lat, longt, 6000f, pageable);
     }
 
 }
