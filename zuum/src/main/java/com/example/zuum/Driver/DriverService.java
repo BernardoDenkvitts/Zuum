@@ -8,7 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.zuum.Common.Exception.NotFoundException;
 import com.example.zuum.Driver.Dto.LocationDTO;
 import com.example.zuum.Driver.Dto.NewDriverDTO;
+import com.example.zuum.Driver.Dto.UpdateDriverDataDTO;
 import com.example.zuum.Driver.exception.DriverAlreadyExistsException;
+import com.example.zuum.Driver.exception.DriverLicenseLinkedToAnotherDriverException;
+import com.example.zuum.Driver.exception.PlateLinkedToAnotherCarException;
 import com.example.zuum.User.UserModel;
 import com.example.zuum.User.UserRepository;
 
@@ -48,4 +51,32 @@ public class DriverService {
 
         return newDriver;
     }
+
+    @Transactional
+    public DriverModel updateInformations(Integer id, UpdateDriverDataDTO dto) {
+        DriverModel driver = driverRepository.findById(id).orElseThrow(() -> new NotFoundException("Driver with id " + id));
+
+        driverRepository.findByPlate(dto.plate())
+            .ifPresent(d -> {
+                if (d.getId() != driver.getId()) {
+                    throw new PlateLinkedToAnotherCarException(dto.plate()); 
+                }
+            });
+        
+        driverRepository.findByDriverLicense(dto.driverLicense())
+            .ifPresent(d -> {
+                if (d.getId() != driver.getId()) {
+                    throw new DriverLicenseLinkedToAnotherDriverException(dto.driverLicense()); 
+                }
+            });
+        
+        driver.setPlate(dto.plate());
+        driver.setCarModel(dto.carModel());
+        driver.setDriverLicense(dto.driverLicense());
+        
+        driverRepository.save(driver);
+
+        return driver;
+    }
+
 }

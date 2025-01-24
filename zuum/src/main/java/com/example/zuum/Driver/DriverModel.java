@@ -100,4 +100,18 @@ public class DriverModel {
         return rides;
     }
 
+    public void setPlate(String plate) {
+        this.plate = plate;
+    }
+
+    public void setCarModel(String carModel) {
+        this.carModel = carModel;
+    }
+
+    public void setDriverLicense(String driverLicense) {
+        this.driverLicense = driverLicense;
+    }
+
+
+    
 }

@@ -16,6 +16,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import com.example.zuum.Common.utils;
 import com.example.zuum.Common.Exception.NotFoundException;
+import com.example.zuum.Driver.exception.DriverAlreadyExistsException;
+import com.example.zuum.Driver.exception.DriverLicenseLinkedToAnotherDriverException;
+import com.example.zuum.Driver.exception.PlateLinkedToAnotherCarException;
 import com.example.zuum.Ride.exception.DriverRequestRideException;
 import com.example.zuum.Ride.exception.RideRequestExistsException;
 import com.example.zuum.Ride.exception.UserIsNotDriverException;
@@ -75,7 +78,7 @@ public class ExceptionsHandler {
         return pb;
     }
 
-    @ExceptionHandler({ RideRequestExistsException.class, EmailAlreadyInUseException.class })
+    @ExceptionHandler({ RideRequestExistsException.class, EmailAlreadyInUseException.class, DriverAlreadyExistsException.class, PlateLinkedToAnotherCarException.class, DriverLicenseLinkedToAnotherDriverException.class })
     public ProblemDetail handleConflict(RuntimeException ex) {
         ProblemDetail pb = getProblemDetail(HttpStatus.CONFLICT);
         pb.setTitle("Conflict");
