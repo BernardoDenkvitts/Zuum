@@ -11,10 +11,10 @@ import org.springframework.stereotype.Repository;
 public interface DriverRepository extends JpaRepository<DriverModel, Integer> {
 
     @Query(
-        value = "SELECT * FROM driver WHERE ST_Distance(driver.curr_location, ST_MakePoint(:lat, :longt)) <= 1000",
-        nativeQuery = true
+        value = "SELECT * FROM driver WHERE ST_DWithin(driver.curr_location, ST_SetSRID(ST_MakePoint(:lat, :longt), 4326)::geography, :distance)",
+         nativeQuery = true
     )
-    List<DriverModel> getDriverByDistance(double lat, double longt);
+    List<DriverModel> getDriverWithinDistance(double lat, double longt, float distance);
 
     Optional<DriverModel> findByUserId(Integer userId);
 
