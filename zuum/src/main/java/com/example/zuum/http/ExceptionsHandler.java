@@ -2,7 +2,6 @@ package com.example.zuum.http;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -10,9 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -21,6 +18,7 @@ import com.example.zuum.Common.utils;
 import com.example.zuum.Common.Exception.NotFoundException;
 import com.example.zuum.Ride.exception.DriverRequestRideException;
 import com.example.zuum.Ride.exception.RideRequestExistsException;
+import com.example.zuum.Ride.exception.UserIsNotDriverException;
 import com.example.zuum.User.Exception.EmailAlreadyInUseException;
 import com.example.zuum.User.Exception.MissingDriverProfileException;
 
@@ -56,7 +54,7 @@ public class ExceptionsHandler {
         return pb;
     }
 
-    @ExceptionHandler({ DriverRequestRideException.class, MethodArgumentNotValidException.class,
+    @ExceptionHandler({ MethodArgumentNotValidException.class,
             ValidationException.class, HttpMessageNotReadableException.class, MissingDriverProfileException.class })
     public ProblemDetail handleUnprocessableEntity(Exception ex) {
         ProblemDetail pb = getProblemDetail(HttpStatus.UNPROCESSABLE_ENTITY);
@@ -87,4 +85,13 @@ public class ExceptionsHandler {
         return pb;
     }
 
+    @ExceptionHandler({UserIsNotDriverException.class, DriverRequestRideException.class})
+    public ProblemDetail handleUnauthorized(RuntimeException ex) {
+        ProblemDetail pb = getProblemDetail(HttpStatus.FORBIDDEN);
+        pb.setTitle("Forbidden");
+        pb.setType(URI.create("Zuum/forbidden"));
+        pb.setDetail(ex.getMessage());
+
+        return pb;
+    }
 }
