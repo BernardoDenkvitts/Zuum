@@ -19,8 +19,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import com.example.zuum.Common.utils;
 import com.example.zuum.Common.Exception.NotFoundException;
-import com.example.zuum.Trip.exception.DriverRequestTripException;
-import com.example.zuum.Trip.exception.TripRequestExistsException;
+import com.example.zuum.Ride.exception.DriverRequestRideException;
+import com.example.zuum.Ride.exception.RideRequestExistsException;
 import com.example.zuum.User.Exception.EmailAlreadyInUseException;
 import com.example.zuum.User.Exception.MissingDriverProfileException;
 
@@ -56,7 +56,7 @@ public class ExceptionsHandler {
         return pb;
     }
 
-    @ExceptionHandler({ DriverRequestTripException.class, MethodArgumentNotValidException.class,
+    @ExceptionHandler({ DriverRequestRideException.class, MethodArgumentNotValidException.class,
             ValidationException.class, HttpMessageNotReadableException.class, MissingDriverProfileException.class })
     public ProblemDetail handleUnprocessableEntity(Exception ex) {
         ProblemDetail pb = getProblemDetail(HttpStatus.UNPROCESSABLE_ENTITY);
@@ -77,7 +77,7 @@ public class ExceptionsHandler {
         return pb;
     }
 
-    @ExceptionHandler({ TripRequestExistsException.class, EmailAlreadyInUseException.class })
+    @ExceptionHandler({ RideRequestExistsException.class, EmailAlreadyInUseException.class })
     public ProblemDetail handleConflict(RuntimeException ex) {
         ProblemDetail pb = getProblemDetail(HttpStatus.CONFLICT);
         pb.setTitle("Conflict");
