@@ -14,14 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.zuum.Driver.DriverRepository;
 import com.example.zuum.Ride.Dto.NewRideDTO;
 import com.example.zuum.Ride.Dto.NewRideResponseDTO;
 import com.example.zuum.Ride.Dto.RideRequestNotificationDTO;
 
 @RestController()
 @RequestMapping("/rides")
-public record RideController(RideService service, DriverRepository driveRepo) {
+public record RideController(RideService service) {
     @PostMapping("/request")
     public ResponseEntity<NewRideResponseDTO> requestTrip(@RequestBody NewRideDTO dto) {
         var newTrip = this.service.requestRide(dto);
