@@ -61,6 +61,13 @@ public class DriverModel {
         this.user = user;
     }
 
+    public DriverModel(String plate, String carModel, String driverLicense, UserModel user) {
+        this.plate = plate;
+        this.carModel = carModel;
+        this.driverLicense = driverLicense;
+        this.user = user;
+    }
+
     public Integer getId() {
         return id;
     }
