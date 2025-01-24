@@ -61,6 +61,30 @@ public class DriverModel {
         this.user = user;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
+    public String getPlate() {
+        return plate;
+    }
+
+    public String getCarModel() {
+        return carModel;
+    }
+
+    public String getDriverLicense() {
+        return driverLicense;
+    }
+
+    public Point getCurrLocation() {
+        return currLocation;
+    }
+
+    public UserModel getUser() {
+        return user;
+    }
+
     public void updateLocation(Point newLocation) {
         this.currLocation = newLocation;
     }
