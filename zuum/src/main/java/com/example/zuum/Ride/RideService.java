@@ -2,6 +2,7 @@ package com.example.zuum.Ride;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -49,10 +50,10 @@ public class RideService {
 
         RideModel newRideRequest = rideRepository.save(dto.toRideModel(user));
 
-        driverNotifier.newTripRequest(
-                new RideRequestNotificationDTO(newRideRequest.getId(),
-                        newRideRequest.getPassanger().getId(), newRideRequest.getStatus(), newRideRequest.getPrice(),
-                        newRideRequest.getOrigin(), newRideRequest.getDestiny()));
+        CompletableFuture.runAsync(() -> driverNotifier.newRideRequest(
+                new RideRequestNotificationDTO(
+                        newRideRequest.getId(), newRideRequest.getPassanger().getId(), newRideRequest.getStatus(),
+                        newRideRequest.getPrice(), newRideRequest.getOrigin(), newRideRequest.getDestiny())));
 
         return newRideRequest;
     }
