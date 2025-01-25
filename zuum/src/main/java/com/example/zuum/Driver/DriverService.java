@@ -23,10 +23,14 @@ public class DriverService {
 
     private final DriverRepository driverRepository;
     private final UserRepository userRepository;
-
+    
     public DriverService(DriverRepository driverRepository, UserRepository userRepository) {
         this.driverRepository = driverRepository;
         this.userRepository = userRepository;
+    }
+    
+    public DriverModel getInformations(Integer id) {
+        return driverRepository.findById(id).orElseThrow(() -> new NotFoundException("Driver with id " + id));
     }
 
     @Transactional
