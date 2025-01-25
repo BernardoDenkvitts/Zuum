@@ -9,7 +9,7 @@ import com.example.zuum.Ride.RideStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record RideRequestNotificationDTO(
-        @JsonProperty("trip_id") Integer tripId,
+        @JsonProperty("ride_id") Integer rideId,
 
         @JsonProperty("user_id") Integer userId,
 
