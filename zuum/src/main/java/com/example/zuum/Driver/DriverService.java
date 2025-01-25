@@ -1,6 +1,9 @@
 package com.example.zuum.Driver;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +31,8 @@ public class DriverService {
 
     @Transactional
     public DriverModel updateLocation(LocationDTO dto) {
-        DriverModel driver = driverRepository.findById(dto.driverId()).orElseThrow(() -> new NotFoundException("Driver with id " + dto.driverId()));
+        DriverModel driver = driverRepository.findById(dto.driverId())
+                .orElseThrow(() -> new NotFoundException("Driver with id " + dto.driverId()));
         driver.updateLocation(dto.currLocation());
         driverRepository.save(driver);
 
@@ -41,42 +45,70 @@ public class DriverService {
 
     @Transactional
     public DriverModel createDriver(NewDriverDTO dto) {
-        UserModel user = userRepository.findById(dto.userId()).orElseThrow(() -> new NotFoundException("User with id " + dto.userId()));
+        UserModel user = userRepository.findById(dto.userId())
+                .orElseThrow(() -> new NotFoundException("User with id " + dto.userId()));
 
         if (driverRepository.findByUserId(dto.userId()).isPresent()) {
             throw new DriverAlreadyExistsException(dto.userId());
         }
 
-        DriverModel newDriver = driverRepository.save(new DriverModel(dto.plate(), dto.carModel(), dto.driverLicense(), user));
+        validateDriversData(dto.plate(), dto.driverLicense(), null);
+
+        DriverModel newDriver = driverRepository
+                .save(new DriverModel(dto.plate(), dto.carModel(), dto.driverLicense(), user));
 
         return newDriver;
     }
 
     @Transactional
     public DriverModel updateInformations(Integer id, UpdateDriverDataDTO dto) {
-        DriverModel driver = driverRepository.findById(id).orElseThrow(() -> new NotFoundException("Driver with id " + id));
+        DriverModel driver = driverRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Driver with id " + id));
 
-        driverRepository.findByPlate(dto.plate())
-            .ifPresent(d -> {
-                if (d.getId() != driver.getId()) {
-                    throw new PlateLinkedToAnotherCarException(dto.plate()); 
-                }
-            });
-        
-        driverRepository.findByDriverLicense(dto.driverLicense())
-            .ifPresent(d -> {
-                if (d.getId() != driver.getId()) {
-                    throw new DriverLicenseLinkedToAnotherDriverException(dto.driverLicense()); 
-                }
-            });
-        
+        validateDriversData(dto.plate(), dto.driverLicense(), id);
+
         driver.setPlate(dto.plate());
         driver.setCarModel(dto.carModel());
         driver.setDriverLicense(dto.driverLicense());
-        
+
         driverRepository.save(driver);
 
         return driver;
+    }
+
+    private void validateDriversData(String plate, String driverLicense, Integer driverId) {
+        CompletableFuture<Optional<DriverModel>> plateValidation = CompletableFuture
+                .supplyAsync(() -> driverRepository.findByPlate(plate));
+
+        CompletableFuture<Optional<DriverModel>> driverLicenseValidation = CompletableFuture
+                .supplyAsync(() -> driverRepository.findByDriverLicense(driverLicense));
+
+        try {
+            CompletableFuture.allOf(plateValidation, driverLicenseValidation).join();
+
+            Optional<DriverModel> plateResult = plateValidation.join();
+            plateResult.ifPresent(d -> {
+                if (!d.getId().equals(driverId)) {
+                    throw new PlateLinkedToAnotherCarException(plate);
+                }
+            });
+
+            Optional<DriverModel> licenseResult = driverLicenseValidation.join();
+            licenseResult.ifPresent(d -> {
+                if (!d.getId().equals(driverId)) {
+                    throw new DriverLicenseLinkedToAnotherDriverException(driverLicense);
+                }
+            });
+
+        } catch (CompletionException e) {
+            if (e.getCause() instanceof PlateLinkedToAnotherCarException) {
+                throw (PlateLinkedToAnotherCarException) e.getCause();
+            } else if (e.getCause() instanceof DriverLicenseLinkedToAnotherDriverException) {
+                throw (DriverLicenseLinkedToAnotherDriverException) e.getCause();
+            } else {
+                throw new RuntimeException("Unexpected validation error", e.getCause());
+            }
+        }
     }
 
 }
