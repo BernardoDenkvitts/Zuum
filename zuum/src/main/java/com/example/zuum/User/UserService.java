@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.example.zuum.Common.Exception.NotFoundException;
 import com.example.zuum.Driver.DriverRepository;
 import com.example.zuum.User.Dto.UpdateUserDataDTO;
 import com.example.zuum.User.Exception.EmailAlreadyInUseException;
@@ -22,10 +23,13 @@ public class UserService {
 
     @Transactional
     public UserModel updateInformations(Integer id, UpdateUserDataDTO dto) {
-        Optional<UserModel> user = userRepository.findByEmail(dto.getEmail());
-
-        if (user.isPresent() && user.get().getId() != id) {
-            throw new EmailAlreadyInUseException();
+        UserModel user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User with id " + id));
+        
+        if (dto.getEmail() != user.getEmail()){
+            Optional<UserModel> checkEmail = userRepository.findByEmail(dto.getEmail());
+            if (checkEmail.isPresent() && checkEmail.get().getId() != id) {
+                throw new EmailAlreadyInUseException();
+            }
         }
 
         // If user wants to change his Status to DRIVER
@@ -36,15 +40,15 @@ public class UserService {
             }
         }
 
-        user.get().setName(dto.getName());
-        user.get().setEmail(dto.getEmail());
-        user.get().setUserType(dto.getUserType());
-        user.get().setCellphone(dto.getCellphone());
-        user.get().setBirthday(dto.getBirthday());
+        user.setName(dto.getName());
+        user.setEmail(dto.getEmail());
+        user.setUserType(dto.getUserType());
+        user.setCellphone(dto.getCellphone());
+        user.setBirthday(dto.getBirthday());
 
-        userRepository.save(user.get());
+        userRepository.save(user);
         
-        return user.get();
+        return user;
     }
 
 }
