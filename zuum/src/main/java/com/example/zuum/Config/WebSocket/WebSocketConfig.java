@@ -23,7 +23,7 @@ class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		registry.addEndpoint("/ws/drivers")
+		registry.addEndpoint("/ws/zuum")
 				.setAllowedOriginPatterns("*")
 				.withSockJS();
 	}
