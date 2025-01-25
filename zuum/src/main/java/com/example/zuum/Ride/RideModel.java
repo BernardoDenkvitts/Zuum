@@ -121,4 +121,13 @@ public class RideModel {
         return destiny;
     }
 
+    public void setDriver(DriverModel driver) {
+        this.driver = driver;
+    }
+
+    public void setStatus(RideStatus status) {
+        this.status = status;
+    }
+
+
 }

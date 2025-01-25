@@ -1,8 +1,8 @@
 package com.example.zuum.Ride;
 
 public enum RideStatus {
-    // Waiting for a driver to accept the trip
+    // Waiting for a driver to accept the ride
     PENDING,
-    ACCEPTED,
+    IN_PROGRESS,
     COMPLETED,
 }

@@ -19,6 +19,8 @@ import com.example.zuum.Common.Exception.NotFoundException;
 import com.example.zuum.Driver.exception.DriverAlreadyExistsException;
 import com.example.zuum.Driver.exception.DriverLicenseLinkedToAnotherDriverException;
 import com.example.zuum.Driver.exception.PlateLinkedToAnotherCarException;
+import com.example.zuum.Notification.Exception.UserIsNotConnectedException;
+import com.example.zuum.Ride.exception.DriverAlreadyHasRideInProgressException;
 import com.example.zuum.Ride.exception.DriverRequestRideException;
 import com.example.zuum.Ride.exception.RideRequestExistsException;
 import com.example.zuum.Ride.exception.UserIsNotDriverException;
@@ -38,7 +40,7 @@ public class ExceptionsHandler {
 
     @ExceptionHandler(RuntimeException.class)
     public ProblemDetail handleInternalServerError(RuntimeException ex) {
-        LOGGER.info("INTERNAL SERVER ERROR -> {} \n {}", ex.getMessage(), ex.getStackTrace());
+        LOGGER.info("INTERNAL SERVER ERROR -> {} \n {} \n {} \n {}", ex.getMessage(), ex.getCause(), ex.getLocalizedMessage(), ex.getClass());
         ProblemDetail pb = getProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR);
         pb.setTitle("Internal Server Error");
         pb.setType(URI.create("Zuum/internal-server-error"));
@@ -57,8 +59,11 @@ public class ExceptionsHandler {
         return pb;
     }
 
-    @ExceptionHandler({ MethodArgumentNotValidException.class,
-            ValidationException.class, HttpMessageNotReadableException.class, MissingDriverProfileException.class })
+    @ExceptionHandler({ 
+        MethodArgumentNotValidException.class, ValidationException.class,
+        HttpMessageNotReadableException.class, MissingDriverProfileException.class,
+        UserIsNotConnectedException.class
+     })
     public ProblemDetail handleUnprocessableEntity(Exception ex) {
         ProblemDetail pb = getProblemDetail(HttpStatus.UNPROCESSABLE_ENTITY);
         pb.setTitle("Unprocessable Entity");
@@ -78,7 +83,10 @@ public class ExceptionsHandler {
         return pb;
     }
 
-    @ExceptionHandler({ RideRequestExistsException.class, EmailAlreadyInUseException.class, DriverAlreadyExistsException.class, PlateLinkedToAnotherCarException.class, DriverLicenseLinkedToAnotherDriverException.class })
+    @ExceptionHandler({ 
+        RideRequestExistsException.class, EmailAlreadyInUseException.class, DriverAlreadyExistsException.class,
+        PlateLinkedToAnotherCarException.class, DriverLicenseLinkedToAnotherDriverException.class, DriverAlreadyHasRideInProgressException.class
+    })
     public ProblemDetail handleConflict(RuntimeException ex) {
         ProblemDetail pb = getProblemDetail(HttpStatus.CONFLICT);
         pb.setTitle("Conflict");
