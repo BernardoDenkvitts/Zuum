@@ -18,11 +18,9 @@ public record RideRequestNotificationDTO(
         Point origin,
         Point destiny
 ) {
-
-    public static RideRequestNotificationDTO toDTO(RideModel model) {
+    public static RideRequestNotificationDTO create(RideModel model) {
         return new RideRequestNotificationDTO(
-            model.getId(), model.getPassanger().getId(), model.getStatus(),
-            model.getPrice(), model.getOrigin(), model.getDestiny()
-        );
+                model.getId(), model.getPassanger().getId(), model.getStatus(),
+                model.getPrice(), model.getOrigin(), model.getDestiny());
     }
 }
