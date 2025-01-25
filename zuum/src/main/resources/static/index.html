@@ -8,44 +8,44 @@
 <body>
 
 <script>
-
-    // window.addEventListener('load', (e) => {
-    //     const socket = new SockJS('http://localhost:8080/chat')
-    //     const stompClient = Stomp.over(socket)
-    //     stompClient.connect({}, (frame) => {
-
-    //         stompClient.subscribe('/topic/errors', (greeting) => {
-    //             console.warn('errors: ' + greeting.body)
-    //         });
-
-    //         stompClient.subscribe('/topic/greetings', (greeting) => {
-    //             console.log('greetings: ' + greeting.body)
-    //         });
-
-    //         stompClient.send('/app/chat', {}, JSON.stringify({name: 'Tammie'}))
-    //         stompClient.send('/app/chat', {}, JSON.stringify({name: 'josh'}))
-    //     });
-    
     window.addEventListener('load', (e) => {
-    const socket = new SockJS('http://localhost:8080/ws/drivers/request')
-    const stompClient = Stomp.over(socket)
-    stompClient.connect({}, (frame) => {
-        console.log("PEGANDO MENSAGEM");
-        // stompClient.subscribe('/topic/errors', (greeting) => {
-        //     console.warn('errors: ' + greeting)
-        // });
-
-        stompClient.subscribe('/topic/trip-request', (greeting) => {
-            console.log('MINHA TRIP -> ' + greeting)
+    const socket = new SockJS('http://localhost:8080/ws/zuum')
+    const stomp = Stomp.over(socket)
+    
+    // Receive ride requests in real time:
+    stomp.connect({Authorization: '22'}, (frame) => { 
+        stomp.subscribe('/user/queue/ride-accepted', (message) => {
+            console.log('Nova ride rquest: ' + message.body);
         });
-        console.log('A MENSAGEM VEIO ?');
-
-        // stompClient.send('/app/chat', {}, JSON.stringify({name: 'Tammie'}))
-        // stompClient.send('/app/chat', {}, JSON.stringify({name: 'josh'}))
-    });
-
-
     })
+    
+    // const stompLocation = Stomp.over(socket)
+    // stompLocation.connect({ Authorization: '14' }, (frame) => {
+    //    stompLocation.subscribe('/user/queue/reply', (message) => {
+    //         console.log('Message received: ' + message.body);
+    //     });
+    //    const sendLocationUpdate = (driverId, latitude, longitude) => {
+    //         const locationDTO = {
+    //             driver_id: driverId,
+    //             curr_location: {
+    //                 x: latitude,
+    //                 y: longitude
+    //             }
+    //         };
+
+    //         stompLocation.send('/ws/zuum/location', {}, JSON.stringify(locationDTO));
+    //     };
+
+    //     sendLocationUpdate(1, -15.55052, -70.633308);
+
+    // Receive ride requests in real time:
+    stomp.connect({Authorization: '22'}, (frame) => {
+        stomp.subscribe('/user/queue/ride-accepted', (message) => {
+            console.log('Driver accepted the ride request: ' + message.body);
+        });
+    })
+
+    });
 </script>
 </body>
 </html>
