@@ -77,7 +77,7 @@ public class RideService {
         return newRideRequest;
     }
 
-    @Scheduled(fixedRate = 350000)
+    @Scheduled(fixedRate = 300000)
     public void deletePendingRidesLongerThanFiveMinutes() {
         LOGGER.info("Deleteing rides with PENDING longer than 5 minutes");
         LocalDateTime limit = LocalDateTime.now().minusMinutes(5);
