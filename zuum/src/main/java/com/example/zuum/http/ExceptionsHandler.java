@@ -24,9 +24,11 @@ import com.example.zuum.Notification.Exception.UserIsNotConnectedException;
 import com.example.zuum.Ride.RideStatus;
 import com.example.zuum.Ride.exception.DriverAlreadyHasAnAcceptedRideException;
 import com.example.zuum.Ride.exception.DriverRequestRideException;
+import com.example.zuum.Ride.exception.MissingNecessaryParameters;
 import com.example.zuum.Ride.exception.RideRequestExistsException;
 import com.example.zuum.Ride.exception.RideStatusNotAllowed;
 import com.example.zuum.Ride.exception.UserIsNotDriverException;
+import com.example.zuum.Ride.exception.UserNotRelatedToRide;
 import com.example.zuum.User.Exception.EmailAlreadyInUseException;
 import com.example.zuum.User.Exception.MissingDriverProfileException;
 
@@ -109,8 +111,8 @@ public class ExceptionsHandler {
         return pb;
     }
 
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ProblemDetail handleMethodArgumentNotValid(RuntimeException ex) {
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, MissingNecessaryParameters.class})
+    public ProblemDetail handleBadRequest(RuntimeException ex) {
         ProblemDetail pb = getProblemDetail(HttpStatus.BAD_REQUEST);
         pb.setTitle("Bad Request");
         pb.setType(URI.create("Zuum/bad-request"));
@@ -119,6 +121,16 @@ public class ExceptionsHandler {
         } else {
             pb.setDetail(ex.getMessage());
         }
+
+        return pb;
+    }
+
+    @ExceptionHandler(UserNotRelatedToRide.class)
+    public ProblemDetail handleNoContent(RuntimeException ex) {
+        ProblemDetail pb = getProblemDetail(HttpStatus.NO_CONTENT);
+        pb.setTitle("No Content");
+        pb.setType(URI.create("Zuum/no-content"));
+        pb.setDetail(ex.getMessage());
 
         return pb;
     }
