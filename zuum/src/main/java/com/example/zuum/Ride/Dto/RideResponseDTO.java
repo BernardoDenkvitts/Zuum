@@ -4,8 +4,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.example.zuum.Config.Jackson.PointSerializer;
+import com.example.zuum.Driver.Dto.DriverResponseDTO;
 import com.example.zuum.Ride.RideModel;
 import com.example.zuum.Ride.RideStatus;
+import com.example.zuum.User.Dto.UserResponseDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -15,11 +17,8 @@ import org.locationtech.jts.geom.Point;
 public record RideResponseDTO(
     Integer id,
 
-    @JsonProperty("passanger_id")
-    Integer passangerId,
-
-    @JsonProperty("driver_id") 
-    Integer driverId,
+    DriverResponseDTO driver,
+    UserResponseDTO passanger,
 
     RideStatus status,
     BigDecimal price,
@@ -33,8 +32,9 @@ public record RideResponseDTO(
     @JsonProperty("created_at") @JsonFormat(shape = JsonFormat.Shape.STRING) LocalDateTime createdAt
 ) {
     public static RideResponseDTO create(RideModel model) {
-        return new RideResponseDTO(
-                model.getId(), model.getPassanger().getId(), null, model.getStatus(), model.getPrice(),
-                model.getOrigin(), model.getDestiny(), model.getCreatedAt());
+        DriverResponseDTO driverResponseDTO = model.getDriver() == null ? null : DriverResponseDTO.create(model.getDriver());
+
+        return new RideResponseDTO(model.getId(), driverResponseDTO, UserResponseDTO.create(model.getPassanger()),
+                                   model.getStatus(), model.getPrice(), model.getOrigin(), model.getDestiny(), model.getCreatedAt());
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -20,9 +21,11 @@ import com.example.zuum.Driver.exception.DriverAlreadyExistsException;
 import com.example.zuum.Driver.exception.DriverLicenseLinkedToAnotherDriverException;
 import com.example.zuum.Driver.exception.PlateLinkedToAnotherCarException;
 import com.example.zuum.Notification.Exception.UserIsNotConnectedException;
-import com.example.zuum.Ride.exception.DriverAlreadyHasRideInProgressException;
+import com.example.zuum.Ride.RideStatus;
+import com.example.zuum.Ride.exception.DriverAlreadyHasAnAcceptedRideException;
 import com.example.zuum.Ride.exception.DriverRequestRideException;
 import com.example.zuum.Ride.exception.RideRequestExistsException;
+import com.example.zuum.Ride.exception.RideStatusNotAllowed;
 import com.example.zuum.Ride.exception.UserIsNotDriverException;
 import com.example.zuum.User.Exception.EmailAlreadyInUseException;
 import com.example.zuum.User.Exception.MissingDriverProfileException;
@@ -62,7 +65,7 @@ public class ExceptionsHandler {
     @ExceptionHandler({ 
         MethodArgumentNotValidException.class, ValidationException.class,
         HttpMessageNotReadableException.class, MissingDriverProfileException.class,
-        UserIsNotConnectedException.class
+        UserIsNotConnectedException.class, RideStatusNotAllowed.class
      })
     public ProblemDetail handleUnprocessableEntity(Exception ex) {
         ProblemDetail pb = getProblemDetail(HttpStatus.UNPROCESSABLE_ENTITY);
@@ -85,7 +88,7 @@ public class ExceptionsHandler {
 
     @ExceptionHandler({ 
         RideRequestExistsException.class, EmailAlreadyInUseException.class, DriverAlreadyExistsException.class,
-        PlateLinkedToAnotherCarException.class, DriverLicenseLinkedToAnotherDriverException.class, DriverAlreadyHasRideInProgressException.class
+        PlateLinkedToAnotherCarException.class, DriverLicenseLinkedToAnotherDriverException.class, DriverAlreadyHasAnAcceptedRideException.class
     })
     public ProblemDetail handleConflict(RuntimeException ex) {
         ProblemDetail pb = getProblemDetail(HttpStatus.CONFLICT);
@@ -102,6 +105,20 @@ public class ExceptionsHandler {
         pb.setTitle("Forbidden");
         pb.setType(URI.create("Zuum/forbidden"));
         pb.setDetail(ex.getMessage());
+
+        return pb;
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ProblemDetail handleMethodArgumentNotValid(RuntimeException ex) {
+        ProblemDetail pb = getProblemDetail(HttpStatus.BAD_REQUEST);
+        pb.setTitle("Bad Request");
+        pb.setType(URI.create("Zuum/bad-request"));
+        if (ex.getMessage().contains("RideStatus")) {
+            pb.setDetail("Invalid Ride Status. Valid status: " + RideStatus.allowedValues());
+        } else {
+            pb.setDetail(ex.getMessage());
+        }
 
         return pb;
     }

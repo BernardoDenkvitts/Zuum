@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.zuum.Ride.Dto.NewRideDTO;
-import com.example.zuum.Ride.Dto.RideAcceptedDTO;
 import com.example.zuum.Ride.Dto.RideResponseDTO;
 import com.example.zuum.Ride.Dto.RideRequestNotificationDTO;
 
@@ -42,11 +42,12 @@ public record RideController(RideService service) {
         return ResponseEntity.ok(responseDTO);
     }
 
-    @PostMapping("/{rideId}/accept")
-    public ResponseEntity<RideAcceptedDTO> acceptRide(@PathVariable Integer rideId, @RequestParam Integer driverId) {
-        RideModel ride = service.acceptRide(rideId, driverId);
+    @PatchMapping("/{rideId}")
+    public ResponseEntity<RideResponseDTO> updateStatus(@PathVariable Integer rideId, @RequestParam Integer driverId,
+            @RequestParam("status") RideStatus newStatus) {
+        RideModel ride = service.updateRideStatus(rideId, driverId, newStatus);
 
-        return ResponseEntity.ok(RideAcceptedDTO.create(ride));
+        return ResponseEntity.ok(RideResponseDTO.create(ride));
     }
 
 }
