@@ -1,10 +1,8 @@
 package com.example.zuum.Ride;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import org.slf4j.Logger;
@@ -79,7 +77,7 @@ public class RideService {
 
     @Scheduled(fixedRate = 350000)
     public void deletePendingRidesLongerThanFiveMinutes() {
-        LOGGER.info("Deleteing trips with PENDING longer than 5 minutes");
+        LOGGER.info("Deleteing rides with PENDING longer than 5 minutes");
         LocalDateTime limit = LocalDateTime.now().minusMinutes(5);
         List<RideModel> expiredRides = rideRepository.findByStatusAndCreatedAtBefore(RideStatus.PENDING, limit);
         for (RideModel ride : expiredRides) {
