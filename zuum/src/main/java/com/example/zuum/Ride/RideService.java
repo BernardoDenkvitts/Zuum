@@ -22,9 +22,11 @@ import com.example.zuum.Ride.Dto.RideResponseDTO;
 import com.example.zuum.Ride.Dto.RideRequestNotificationDTO;
 import com.example.zuum.Ride.exception.DriverAlreadyHasAnAcceptedRideException;
 import com.example.zuum.Ride.exception.DriverRequestRideException;
+import com.example.zuum.Ride.exception.MissingNecessaryParameters;
 import com.example.zuum.Ride.exception.RideRequestExistsException;
 import com.example.zuum.Ride.exception.RideStatusNotAllowed;
 import com.example.zuum.Ride.exception.UserIsNotDriverException;
+import com.example.zuum.Ride.exception.UserNotRelatedToRide;
 import com.example.zuum.User.UserModel;
 import com.example.zuum.User.UserRepository;
 import com.example.zuum.User.UserType;
@@ -113,7 +115,7 @@ public class RideService {
         ride.setDriver(driver);
         rideRepository.save(ride);
 
-        notifier.notifyUser(String.valueOf(ride.getPassanger().getId()), "/queue/ride-accepted", RideResponseDTO.create(ride));
+        notifier.notifyUser(String.valueOf(ride.getPassanger().getId()), "/queue/ride-status", RideResponseDTO.create(ride));
 
         return ride;
     }
@@ -137,6 +139,28 @@ public class RideService {
             throw new RideStatusNotAllowed("Ride Status " + newStatus.name() + " not allowed, the next status must be "
                     + nextStatus.get(currentStatus).name());
         }
+    }
+
+    public RideModel getData(Integer rideId, Integer driverId, Integer passangerId) {
+        RideModel ride = rideRepository.findById(rideId)
+                .orElseThrow(() -> new NotFoundException("Ride with id " + rideId));
+
+        if (driverId == null && passangerId == null) {
+            throw new MissingNecessaryParameters();
+        }
+        if (driverId != null){
+            driverRepository.findById(driverId).orElseThrow(() -> new NotFoundException("Driver with id " + driverId));
+            if (ride.getDriver().getId() != driverId) {
+                throw new UserNotRelatedToRide("Driver with id " + driverId + " is not related to ride");
+            }
+        } else {
+            userRepository.findById(passangerId).orElseThrow(() -> new NotFoundException("Passanger with id " + passangerId));
+            if (ride.getPassanger().getId() != passangerId) {
+                throw new UserNotRelatedToRide("Passanger with id " + passangerId + " is not related to ride");
+            }
+        }
+
+        return ride;
     }
 
 }

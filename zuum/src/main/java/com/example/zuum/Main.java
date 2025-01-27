@@ -15,9 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import com.example.zuum.Driver.DriverRepository;
-import com.example.zuum.Trip.TripModel;
-import com.example.zuum.Trip.TripRepository;
-
+import com.example.zuum.Ride.RideRepository;
 import com.example.zuum.User.UserModel;
 import com.example.zuum.User.UserRepository;
 
@@ -31,10 +29,12 @@ public class Main implements CommandLineRunner {
 	
 	@Autowired
 	UserRepository repo;
+	
 	@Autowired
 	DriverRepository driverRepo;
+
 	@Autowired
-	TripRepository tripRepo;
+	RideRepository tripRepo;
 
 	@Bean
 	public String firstData() {
@@ -70,8 +70,8 @@ public class Main implements CommandLineRunner {
 
 		BigDecimal valor = BigDecimal.valueOf(20.10);
 
-		// TripModel firstTrip = new TripModel(users.get(0), valor, origin, destiny);
-		// TripModel secondTrip = new TripModel(users.get(2), valor, origin, destiny);
+		// RideModel firstTrip = new RideModel(users.get(0), valor, origin, destiny);
+		// RideModel secondTrip = new RideModel(users.get(2), valor, origin, destiny);
 		// tripRepo.saveAll(List.of(firstTrip, secondTrip));
 	}
 

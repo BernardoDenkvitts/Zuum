@@ -1,17 +1,65 @@
 ###
 
-POST http://localhost:8080/trips/request
+POST http://localhost:8080/rides/request
+Content-Type: application/json
+
+{
+    "user_id": "20",
+    "price": 15.99,
+    "origin": {
+        "x": -28.73641961515877,
+        "y": -52.83628526180858
+    },
+    "destiny": {
+        "x": -28.656012344250062,
+        "y": -52.86323201171759
+    }
+}
+
+###
+PATCH http://localhost:8080/rides/108?driverId=1&status=IN_PROGRESS
+
+
+###
+
+PUT http://localhost:8080/users/9
+Content-Type: application/json
+
+{
+    "name": "Bernardo Denkvitts",
+    "email": "bernardoarcari@gmail.com",
+    "type": "DRIVER",
+    "cellphone": "77777777",
+    "birthday": "1995-10-02"
+}
+
+
+###
+
+GET http://localhost:8080/rides/recent?driverId=1&lat=-28.698918566281925&longt=-52.85612805261704
+
+###
+POST http://localhost:8080/drivers
 Content-Type: application/json
 
 {
     "user_id": "9",
-    "price": 15.99,
-    "origin": {
-        "x": -46.6333,
-        "y": -23.5505
-    },
-    "destiny": {
-        "x": -46.6543,
-        "y": -23.5872
-    }
+    "plate": "HHGS421412",
+    "car_model": "Ferrari",
+    "driver_license": "87865323"
 }
+
+###
+
+PUT http://localhost:8080/drivers/7
+Content-Type: application/json
+
+{
+    "plate": "HHGS421412",
+    "car_model": "Pagani",
+    "driver_license": "0764674"
+}
+
+###
+
+GET http://localhost:8080/drivers/1

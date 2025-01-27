@@ -50,4 +50,11 @@ public record RideController(RideService service) {
         return ResponseEntity.ok(RideResponseDTO.create(ride));
     }
 
+    @GetMapping("/{rideId}")
+    public ResponseEntity<RideResponseDTO> getRideInformation(@PathVariable Integer rideId, @RequestParam(required = false) Integer driverId, @RequestParam(required = false) Integer passangerId) {
+        RideModel ride = service.getData(rideId, driverId, passangerId);
+
+        return ResponseEntity.ok(RideResponseDTO.create(ride));
+    }
+
 }
