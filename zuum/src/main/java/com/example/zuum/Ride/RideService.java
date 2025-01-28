@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import org.kie.api.runtime.KieSession;
 import org.slf4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,10 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.example.zuum.Common.utils;
 import com.example.zuum.Common.Exception.NotFoundException;
+import com.example.zuum.Distance.IDistanceCalculator;
 import com.example.zuum.Driver.DriverModel;
 import com.example.zuum.Driver.DriverRepository;
 import com.example.zuum.Notification.WsNotifier;
 import com.example.zuum.Ride.Dto.NewRideDTO;
+import com.example.zuum.Ride.Dto.PriceRequestDTO;
 import com.example.zuum.Ride.Dto.RideResponseDTO;
 import com.example.zuum.Ride.Dto.RideRequestNotificationDTO;
 import com.example.zuum.Ride.exception.DriverAlreadyHasAnAcceptedRideException;
@@ -38,6 +41,8 @@ public class RideService {
     private final UserRepository userRepository;
     private final DriverRepository driverRepository;
     private final WsNotifier notifier;
+    private final IDistanceCalculator distanceCalculator;
+    private final KieSession kieSession;
 
     private final Map<RideStatus, RideStatus> nextStatus = Map.of(
         RideStatus.PENDING, RideStatus.ACCEPTED,
@@ -48,11 +53,13 @@ public class RideService {
     static Logger LOGGER = utils.getLogger(RideService.class);
 
     public RideService(RideRepository rideRepository, UserRepository userRepository, DriverRepository driverRepository,
-            WsNotifier driverNotifier) {
+            WsNotifier driverNotifier, IDistanceCalculator distanceCalculator, KieSession kieSession) {
         this.rideRepository = rideRepository;
         this.userRepository = userRepository;
         this.driverRepository = driverRepository;
         this.notifier = driverNotifier;
+        this.distanceCalculator = distanceCalculator;
+        this.kieSession = kieSession;
     }
 
     @Transactional
@@ -161,6 +168,19 @@ public class RideService {
         }
 
         return ride;
+    }
+
+    public RidePrice calculateRidePrice(PriceRequestDTO dto) {
+        double distance = distanceCalculator.calculate(dto.getOrigin().getX(), dto.getOrigin().getY(), dto.getDestiny().getX(), dto.getDestiny().getY());
+        LOGGER.info("Ride distance -> {}", distance);
+        RidePrice ridePrice = new RidePrice(distance);
+        
+        kieSession.insert(dto);
+        kieSession.insert(ridePrice);
+        
+        kieSession.fireAllRules();
+
+        return ridePrice;
     }
 
 }

@@ -7,18 +7,22 @@ Content-Type: application/json
     "user_id": "20",
     "price": 15.99,
     "origin": {
-        "x": -28.73641961515877,
-        "y": -52.83628526180858
+        "x": -52.83628526180858, // LONGITUDE
+        "y": -28.73641961515877 // LATITUDE
     },
     "destiny": {
-        "x": -28.656012344250062,
-        "y": -52.86323201171759
+        "x": -52.86323201171759, // LONGITUDE
+        "y": -28.656012344250062 // LATITUDE
     }
 }
 
 ###
-PATCH http://localhost:8080/rides/108?driverId=1&status=IN_PROGRESS
+PATCH http://localhost:8080/rides/112?driverId=1&status=ACCEPTED
 
+
+###
+
+GET http://localhost:8080/rides/112?driverId=1
 
 ###
 
@@ -63,3 +67,21 @@ Content-Type: application/json
 ###
 
 GET http://localhost:8080/drivers/1
+
+
+###
+
+GET http://localhost:8080/rides/price
+Content-Type: application/json
+
+{
+    "user_id": 9,
+    "origin": {
+        "x": -52.83628526180858,
+        "y": -28.73641961515877
+    },
+    "destiny": {
+        "x": -52.86323201171759,
+        "y": -28.656012344250062
+    }
+}

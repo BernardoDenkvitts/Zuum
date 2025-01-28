@@ -41,7 +41,7 @@
 
         stomp.connect({Authorization: '20'}, (frame) => {
             stomp.subscribe('/user/queue/ride-status', (message) => {
-                console.log('Driver accepted the ride request: ' + message.body);
+                console.log('Your ride status was updated: ' + message.body);
             });
         })
 

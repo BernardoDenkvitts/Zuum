@@ -18,12 +18,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.zuum.Ride.Dto.NewRideDTO;
+import com.example.zuum.Ride.Dto.PriceRequestDTO;
+import com.example.zuum.Ride.Dto.RidePriceResponseDTO;
 import com.example.zuum.Ride.Dto.RideResponseDTO;
 import com.example.zuum.Ride.Dto.RideRequestNotificationDTO;
 
 @RestController
 @RequestMapping("/rides")
 public record RideController(RideService service) {
+
+    @GetMapping("/price")
+    public ResponseEntity<RidePriceResponseDTO> requestRidePrice(@RequestBody @Validated PriceRequestDTO dto) {
+        return ResponseEntity.ok(
+            new RidePriceResponseDTO(service.calculateRidePrice(dto).getPrice())
+        );
+    }
+
     @PostMapping("/request")
     public ResponseEntity<RideResponseDTO> requestRide(@RequestBody @Validated NewRideDTO dto) {
         var newTrip = this.service.requestRide(dto);

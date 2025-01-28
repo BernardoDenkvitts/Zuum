@@ -1,0 +1,20 @@
+package rules;
+
+import com.example.zuum.Ride.Dto.PriceRequestDTO;
+import com.example.zuum.Ride.RidePrice;
+import com.example.zuum.Ride.RideModel;
+
+declare PriceRequestDTO
+    @role( event )
+end
+
+dialect  "mvel"
+
+rule "first"
+    when
+        $request : PriceRequestDTO( userId == 9 )
+        $price: RidePrice()
+    then
+        System.out.println("Current price -> " + $price.getPrice());
+        $price.increase(0.5);
+end
