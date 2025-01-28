@@ -87,7 +87,7 @@ public class RideService {
         }
     }
 
-    public Page<RideModel> getRecentPendingRidesByLocation(Integer driverId, double lat, double longt,
+    public Page<RideModel> getRecentPendingRidesByLocation(Integer driverId, double longt, double lat,
             Pageable pageable) {
         DriverModel driver = driverRepository.findById(driverId)
                 .orElseThrow(() -> new NotFoundException("Driver with id " + driverId));
@@ -96,7 +96,7 @@ public class RideService {
             throw new UserIsNotDriverException();
         }
 
-        return rideRepository.findPendingNearbyRides(lat, longt, 6000f, pageable);
+        return rideRepository.findPendingNearbyRides(longt, lat, 6000f, pageable);
     }
 
     @Transactional

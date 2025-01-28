@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,7 +25,7 @@ import com.example.zuum.Ride.Dto.RideRequestNotificationDTO;
 @RequestMapping("/rides")
 public record RideController(RideService service) {
     @PostMapping("/request")
-    public ResponseEntity<RideResponseDTO> requestTrip(@RequestBody NewRideDTO dto) {
+    public ResponseEntity<RideResponseDTO> requestRide(@RequestBody @Validated NewRideDTO dto) {
         var newTrip = this.service.requestRide(dto);
 
         return ResponseEntity.ok(RideResponseDTO.create(newTrip));
@@ -32,10 +33,11 @@ public record RideController(RideService service) {
 
     @GetMapping("/recent")
     public ResponseEntity<List<RideRequestNotificationDTO>> getRecentPendingRideRequests(
-            @RequestParam("driverId") Integer driverId, @RequestParam("lat") double lat,
-            @RequestParam("longt") double longt,
-            @PageableDefault(page = 0, size = 10) Pageable pageable) {
-        Page<RideModel> rides = service.getRecentPendingRidesByLocation(driverId, lat, longt, pageable);
+            @RequestParam("driverId") Integer driverId, @RequestParam("longt") double longt,
+            @RequestParam("lat") double lat,
+            @PageableDefault(page = 0, size = 10) Pageable pageable
+    ) {
+        Page<RideModel> rides = service.getRecentPendingRidesByLocation(driverId, longt, lat, pageable);
         List<RideRequestNotificationDTO> responseDTO = rides.stream().map(RideRequestNotificationDTO::create)
                 .collect(Collectors.toList());
 

@@ -17,8 +17,8 @@ public interface RideRepository extends JpaRepository<RideModel, Integer> {
 
     List<RideModel> findByStatusAndCreatedAtBefore(RideStatus status, LocalDateTime createdAt);
 
-    @Query(value = "SELECT * FROM ride WHERE ride.status = 'PENDING' AND ST_DWithin(ride.origin, ST_SetSRID(ST_MakePoint(:lat, :longt), 4326)::geography, :maxDistance) ORDER BY ride.id", nativeQuery = true)
-    Page<RideModel> findPendingNearbyRides(double lat, double longt, float maxDistance, Pageable pageable);
+    @Query(value = "SELECT * FROM ride WHERE ride.status = 'PENDING' AND ST_DWithin(ride.origin, ST_SetSRID(ST_MakePoint(:longt, :lat), 4326)::geography, :maxDistance) ORDER BY ride.id", nativeQuery = true)
+    Page<RideModel> findPendingNearbyRides(double longt, double lat, float maxDistance, Pageable pageable);
 
     @Query("SELECT COUNT(r) > 0 FROM RideModel r WHERE r.driver.id = :driverId AND r.status = 'ACCEPTED'")
     boolean driverHasAcceptedRide(Integer driverId);
