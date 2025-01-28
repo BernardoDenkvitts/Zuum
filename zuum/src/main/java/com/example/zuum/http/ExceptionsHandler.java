@@ -66,7 +66,7 @@ public class ExceptionsHandler {
 
     @ExceptionHandler({ 
         MethodArgumentNotValidException.class, ValidationException.class,
-        HttpMessageNotReadableException.class, MissingDriverProfileException.class,
+        MissingDriverProfileException.class,
         UserIsNotConnectedException.class, RideStatusNotAllowed.class
      })
     public ProblemDetail handleUnprocessableEntity(Exception ex) {
@@ -111,7 +111,7 @@ public class ExceptionsHandler {
         return pb;
     }
 
-    @ExceptionHandler({MethodArgumentTypeMismatchException.class, MissingNecessaryParameters.class})
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, MissingNecessaryParameters.class, HttpMessageNotReadableException.class})
     public ProblemDetail handleBadRequest(RuntimeException ex) {
         ProblemDetail pb = getProblemDetail(HttpStatus.BAD_REQUEST);
         pb.setTitle("Bad Request");
