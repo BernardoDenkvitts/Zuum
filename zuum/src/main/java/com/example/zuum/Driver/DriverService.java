@@ -1,6 +1,5 @@
 package com.example.zuum.Driver;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -41,10 +40,6 @@ public class DriverService {
         driverRepository.save(driver);
 
         return driver;
-    }
-
-    public List<DriverModel> findDriversNearby(double lat, double longt, float maxDistance) {
-        return driverRepository.findDriversNearby(lat, longt, maxDistance);
     }
 
     @Transactional
