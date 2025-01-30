@@ -3,18 +3,58 @@ package rules;
 import com.example.zuum.Ride.Dto.PriceRequestDTO;
 import com.example.zuum.Ride.RidePrice;
 import com.example.zuum.Ride.RideModel;
+import com.example.zuum.Ride.RideStatus;
 
-declare PriceRequestDTO
+
+declare RideModel
     @role( event )
 end
 
 dialect  "mvel"
 
-rule "first"
+rule "night-ride"
     when
-        $request : PriceRequestDTO( userId == 9 )
         $price: RidePrice()
+        $request : PriceRequestDTO( 
+            timestamp.getHour() >= 19,
+            timestamp.getHour() <= 23
+        )
     then
-        System.out.println("Current price -> " + $price.getPrice());
-        $price.increase(0.5);
+        System.out.println("RULE -> night-ride-rule activated");
+        $price.increase(0.03);
+end
+
+rule "dawn-ride"
+    when
+        $price: RidePrice()
+        $request : PriceRequestDTO( 
+            timestamp.getHour() > 23,
+            timestamp.getHour() <= 7
+        )
+    then
+        System.out.println("RULE -> dawn-ride-rule activated");
+        $price.increase(0.06);
+end
+
+rule "high-number-of-rides-in-one-hour"
+    when
+        $price: RidePrice()
+        accumulate ( 
+            $ride: RideModel( status.name() != "PENDING", status.name() != "COMPLETED" ) over window:time( 1h ),
+            $rideCount: count( $ride )) eval( $rideCount > 30 )
+    then
+        System.out.println("RULE -> high-number-of-rides-in-one-hour");
+        $price.increase(0.1)
+end
+
+rule "active-daily-user"
+    when
+        $price: RidePrice()
+        $currRide : PriceRequestDTO()
+        accumulate (
+            $ride: RideModel( passanger.getId() == $currRide.userId, status.name() == "COMPLETED" ) over window:time( 24h ),
+            $rideCount: count($ride)) eval($rideCount == 3)
+    then
+        System.out.println("RULE -> active-daily-user");
+        $price.decrease(0.05)
 end
