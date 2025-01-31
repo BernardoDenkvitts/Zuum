@@ -6,7 +6,6 @@ import com.example.zuum.Ride.RideModel;
 import com.example.zuum.Ride.RideStatus;
 
 
-
 dialect  "mvel"
 
 declare RideModel
@@ -15,10 +14,21 @@ declare RideModel
     @expires( 25h )
 end
 
+
+rule "update-ride-status"
+    when
+        $id: Integer()
+        $newStatus: RideStatus()
+        $ride: RideModel( id == $id )
+    then
+        System.out.println("RULE -> updating RideModel data");    
+        $ride.setStatus($newStatus)
+end
+
 rule "night-ride"
     when
         $price: RidePrice()
-        $request : PriceRequestDTO( 
+        $request: PriceRequestDTO( 
             createdAt.getHour() >= 19,
             createdAt.getHour() <= 23
         )
@@ -70,7 +80,7 @@ rule "fast-stop"
         accumulate (
             $ride: RideModel( passanger.getId() == $request.userId, status.name() == "COMPLETED" ) over window:time( 11m ),
             $rideCount: count( $ride )
-        ) eval( $rideCount == 1 )
+        ) eval( $rideCount >= 1 )
     then
         System.out.println("RULE -> fast-stop");
         $price.decrease(0.07)
