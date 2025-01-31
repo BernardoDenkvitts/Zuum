@@ -1,8 +1,12 @@
 package com.example.zuum.Ride;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.Date;
 
 import org.locationtech.jts.geom.Point;
 
@@ -23,6 +27,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
 @Table(name = "ride")
@@ -46,6 +51,13 @@ public class RideModel {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+    
+    // This field helps to manage @timestamp in Drools' memory
+    @Transient
+    private Date date;
+
+    @Column(name = "start_time")
+    private LocalTime startTime;
 
     @Column(name = "end_time")
     private LocalTime endTime;
@@ -63,13 +75,15 @@ public class RideModel {
     public RideModel() {}
 
     public RideModel(Integer id, UserModel user, DriverModel driver, RideStatus status, BigDecimal price,
-            LocalDateTime createdAt, LocalTime endTime, Point origin, Point destiny) {
+            LocalDateTime createdAt, LocalTime startTime, LocalTime endTime, Point origin, Point destiny) {
         this.id = id;
         this.passanger = user;
         this.driver = driver;
         this.status = status;
         this.price = price;
         this.createdAt = createdAt;
+        this.date = Date.from(createdAt.atZone(ZoneId.systemDefault()).toInstant());
+        this.startTime = startTime;
         this.endTime = endTime;
         this.origin = origin;
         this.destiny = destiny;
@@ -80,9 +94,19 @@ public class RideModel {
         this.status = RideStatus.PENDING;
         this.price = price;
         this.createdAt = LocalDateTime.now();
+        this.date = Date.from(createdAt.atZone(ZoneId.systemDefault()).toInstant());
+        this.startTime = null;
         this.endTime = null;
         this.origin = origin;
         this.destiny = destiny;
+    }
+
+    public Duration getRideDuration() {
+        if (this.startTime == null || this.endTime == null) {
+            return Duration.ofMinutes(0);
+        }
+
+        return Duration.between(this.startTime, this.endTime);
     }
 
     public Integer getId() {
@@ -108,6 +132,14 @@ public class RideModel {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
+    
+    public Date getDate() {
+        return this.date;
+    }
+
+    public LocalTime getStarTime() {
+        return startTime;
+    }
 
     public LocalTime getEndTime() {
         return endTime;
@@ -129,5 +161,12 @@ public class RideModel {
         this.status = status;
     }
 
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
 
 }
