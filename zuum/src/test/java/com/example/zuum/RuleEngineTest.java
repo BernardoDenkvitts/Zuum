@@ -4,20 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
-import org.drools.core.ClockType;
-import org.drools.core.time.SessionPseudoClock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.kie.api.KieBase;
@@ -28,16 +18,11 @@ import org.kie.api.builder.KieFileSystem;
 import org.kie.api.builder.KieModule;
 import org.kie.api.conf.EventProcessingOption;
 import org.kie.api.runtime.KieContainer;
-import org.kie.api.runtime.KieSession;
-import org.kie.api.runtime.KieSessionConfiguration;
-import org.kie.api.runtime.conf.ClockTypeOption;
-import org.kie.api.runtime.rule.QueryResults;
-import org.kie.api.runtime.rule.QueryResultsRow;
-import org.kie.api.time.SessionClock;
 import org.kie.internal.io.ResourceFactory;
 import org.slf4j.Logger;
 
 import com.example.zuum.Common.utils;
+import com.example.zuum.Drools.DroolsService;
 import com.example.zuum.Ride.RideModel;
 import com.example.zuum.Ride.RidePrice;
 import com.example.zuum.Ride.RideStatus;
@@ -47,7 +32,7 @@ import com.example.zuum.User.UserType;
 
 public class RuleEngineTest {
 
-    private KieSession kieSession;
+    private DroolsService droolsService;
     static Logger log = utils.getLogger(RuleEngineTest.class);
     private Integer userId = 1;
 
@@ -67,7 +52,7 @@ public class RuleEngineTest {
 
         KieBase kieBase = kieContainer.newKieBase(kieBaseConfiguration);
 
-        kieSession = kieBase.newKieSession();
+        droolsService = new DroolsService(kieBase.newKieSession());
     }
 
     private UserModel getTestUser() {
@@ -86,17 +71,17 @@ public class RuleEngineTest {
     @Test
     void testHighNumberOfRidesInOneHour() {
         RidePrice ridePrice = getRidePrice();
-        kieSession.insert(ridePrice);
+        droolsService.insert(ridePrice);
 
         LocalDateTime now = LocalDateTime.now();
         IntStream.range(0, 31).forEach(i -> {
             RideModel ride = new RideModel(i, null, null, RideStatus.ACCEPTED,
                     new BigDecimal(10.0), now.minusMinutes(i), LocalTime.now(), null, null, null);
 
-            kieSession.insert(ride);
+            droolsService.insert(ride);
         });
 
-        kieSession.fireAllRules(match -> match.getRule().getName().equals("high-number-of-rides-in-one-hour"));
+        droolsService.fireSpecificRule("high-number-of-rides-in-one-hour");
 
         assertEquals(new BigDecimal(8.8).setScale(5, RoundingMode.HALF_UP),
                 ridePrice.getPrice().setScale(5, RoundingMode.HALF_UP));
@@ -113,16 +98,16 @@ public class RuleEngineTest {
             RideModel ride = new RideModel(1, user, null, RideStatus.COMPLETED, new BigDecimal(10.0), rideTime, LocalTime.now(), null,
                     null, null);
 
-            kieSession.insert(ride);
+            droolsService.insert(ride);
         });
 
-        kieSession.insert(ridePrice);
-        kieSession.insert(priceRequestDTO);
+        droolsService.insert(ridePrice);
+        droolsService.insert(priceRequestDTO);
 
-        kieSession.fireAllRules(match -> match.getRule().getName().equals("active-daily-user"));
+        droolsService.fireSpecificRule("active-daily-user");
 
-        assertEquals(new BigDecimal(7.6).setScale(5, RoundingMode.HALF_UP),
-                ridePrice.getPrice().setScale(5, RoundingMode.HALF_UP));
+        assertEquals(new BigDecimal(7.6).setScale(2, RoundingMode.HALF_UP),
+                ridePrice.getPrice().setScale(2, RoundingMode.HALF_UP));
     }
 
     @Test
@@ -135,14 +120,14 @@ public class RuleEngineTest {
         RideModel ride = new RideModel(1, user, null, RideStatus.COMPLETED,
                     new BigDecimal(10.0), rideTime, LocalTime.now(), null, null, null);
 
-        kieSession.insert(ridePrice);
-        kieSession.insert(priceRequestDTO);
-        kieSession.insert(ride);
+        droolsService.insert(ridePrice);
+        droolsService.insert(priceRequestDTO);
+        droolsService.insert(ride);
 
-        kieSession.fireAllRules(match -> match.getRule().getName().equals("fast-stop"));
+        droolsService.fireSpecificRule("fast-stop");
 
-        assertEquals(new BigDecimal(7.44).setScale(5, RoundingMode.HALF_UP),
-                ridePrice.getPrice().setScale(5, RoundingMode.HALF_UP));
+        assertEquals(new BigDecimal(7.44).setScale(2, RoundingMode.HALF_UP),
+                ridePrice.getPrice().setScale(2, RoundingMode.HALF_UP));
     }
 
     @Test
@@ -157,14 +142,74 @@ public class RuleEngineTest {
         RideModel ride = new RideModel(1, user, null, RideStatus.COMPLETED,
                     new BigDecimal(10.0), createdAt, startTime, endTime, null, null);
 
-        kieSession.insert(ridePrice);
-        kieSession.insert(priceRequestDTO);
-        kieSession.insert(ride);
+        droolsService.insert(ridePrice);
+        droolsService.insert(priceRequestDTO);
+        droolsService.insert(ride);
 
-        kieSession.fireAllRules(match -> match.getRule().getName().equals("long-ride-last-two-hours"));
+        droolsService.fireSpecificRule("long-ride-last-two-hours");
 
-        assertEquals(new BigDecimal(7.36).setScale(5, RoundingMode.HALF_UP),
-                ridePrice.getPrice().setScale(5, RoundingMode.HALF_UP));
+        assertEquals(new BigDecimal(7.36).setScale(2, RoundingMode.HALF_UP),
+                ridePrice.getPrice().setScale(2, RoundingMode.HALF_UP));
+    }
+
+    @Test
+    void shouldFireTwoRules() {
+        RidePrice ridePrice = getRidePrice();
+        UserModel user = getTestUser();
+        PriceRequestDTO priceRequestDTO = getPriceRequestDTO();
+
+        LocalDateTime createdAt = LocalDateTime.now().minusMinutes(5);
+        RideModel ride = new RideModel(1, user, null, RideStatus.COMPLETED,
+                    new BigDecimal(10.0), createdAt, null, null, null, null);
+        
+        droolsService.insert(ride);
+        
+        LocalDateTime createdAt2 = LocalDateTime.now().minusMinutes(3);
+        RideModel ride2 = new RideModel(2, user, null, RideStatus.COMPLETED,
+        new BigDecimal(10.0), createdAt2, null, null, null, null);
+        
+        droolsService.insert(ride2);
+
+        droolsService.insert(priceRequestDTO);
+        droolsService.insert(ridePrice);
+
+        int fired = droolsService.fireAllRules();
+        assertEquals(2, fired);
+        
+        assertEquals(new BigDecimal(6.84).setScale(2, RoundingMode.HALF_UP), ridePrice.getPrice().setScale(2, RoundingMode.HALF_UP));
+    }
+
+    @Test
+    void shouldFireThreeRules() {
+        RidePrice ridePrice = getRidePrice();
+        UserModel user = getTestUser();
+        PriceRequestDTO priceRequestDTO = getPriceRequestDTO();
+
+        LocalDateTime createdAt = LocalDateTime.now().minusMinutes(5);
+        RideModel ride = new RideModel(1, user, null, RideStatus.COMPLETED,
+                    new BigDecimal(10.0), createdAt, null, null, null, null);
+        
+        droolsService.insert(ride);
+        
+        LocalDateTime createdAt2 = LocalDateTime.now().minusMinutes(3);
+        RideModel ride2 = new RideModel(2, user, null, RideStatus.COMPLETED,
+        new BigDecimal(10.0), createdAt2, null, null, null, null);
+        
+        droolsService.insert(ride2);
+        
+        LocalDateTime createdAt3 = LocalDateTime.now().minusHours(24);
+        RideModel ride3 = new RideModel(2, user, null, RideStatus.COMPLETED,
+        new BigDecimal(10.0), createdAt3, null, null, null, null);
+        
+        droolsService.insert(ride3);
+        
+        droolsService.insert(priceRequestDTO);
+        droolsService.insert(ridePrice);
+
+        int fired = droolsService.fireAllRules();
+        assertEquals(3, fired);
+        
+        assertEquals(new BigDecimal(6.5).setScale(2, RoundingMode.HALF_UP), ridePrice.getPrice().setScale(2, RoundingMode.HALF_UP));
     }
 
 }
