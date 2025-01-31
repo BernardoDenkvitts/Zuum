@@ -1,5 +1,6 @@
 package com.example.zuum.Ride;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,9 +30,10 @@ public record RideController(RideService service) {
 
     @GetMapping("/price")
     public ResponseEntity<RidePriceResponseDTO> requestRidePrice(@RequestBody @Validated PriceRequestDTO dto) {
+        dto.setCreatedAt(LocalDateTime.now());
+
         return ResponseEntity.ok(
-            new RidePriceResponseDTO(service.calculateRidePrice(dto).getPrice())
-        );
+                new RidePriceResponseDTO(service.calculateRidePrice(dto).getPrice()));
     }
 
     @PostMapping("/request")
@@ -45,8 +47,7 @@ public record RideController(RideService service) {
     public ResponseEntity<List<RideRequestNotificationDTO>> getRecentPendingRideRequests(
             @RequestParam("driverId") Integer driverId, @RequestParam("longt") double longt,
             @RequestParam("lat") double lat,
-            @PageableDefault(page = 0, size = 10) Pageable pageable
-    ) {
+            @PageableDefault(page = 0, size = 10) Pageable pageable) {
         Page<RideModel> rides = service.getRecentPendingRidesByLocation(driverId, longt, lat, pageable);
         List<RideRequestNotificationDTO> responseDTO = rides.stream().map(RideRequestNotificationDTO::create)
                 .collect(Collectors.toList());
@@ -63,7 +64,8 @@ public record RideController(RideService service) {
     }
 
     @GetMapping("/{rideId}")
-    public ResponseEntity<RideResponseDTO> getRideInformation(@PathVariable Integer rideId, @RequestParam(required = false) Integer driverId, @RequestParam(required = false) Integer passangerId) {
+    public ResponseEntity<RideResponseDTO> getRideInformation(@PathVariable Integer rideId,
+            @RequestParam(required = false) Integer driverId, @RequestParam(required = false) Integer passangerId) {
         RideModel ride = service.getData(rideId, driverId, passangerId);
 
         return ResponseEntity.ok(RideResponseDTO.create(ride));

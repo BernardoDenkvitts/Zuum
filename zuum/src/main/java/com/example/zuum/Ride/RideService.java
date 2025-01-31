@@ -1,11 +1,12 @@
 package com.example.zuum.Ride;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-import org.kie.api.runtime.KieSession;
+import org.kie.api.runtime.rule.FactHandle;
 import org.slf4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +19,7 @@ import com.example.zuum.Common.Exception.NotFoundException;
 import com.example.zuum.Distance.IDistanceCalculator;
 import com.example.zuum.Driver.DriverModel;
 import com.example.zuum.Driver.DriverRepository;
+import com.example.zuum.Drools.DroolsService;
 import com.example.zuum.Notification.WsNotifier;
 import com.example.zuum.Ride.Dto.NewRideDTO;
 import com.example.zuum.Ride.Dto.PriceRequestDTO;
@@ -42,7 +44,7 @@ public class RideService {
     private final DriverRepository driverRepository;
     private final WsNotifier notifier;
     private final IDistanceCalculator distanceCalculator;
-    private final KieSession kieSession;
+    private final DroolsService droolsService;
 
     private final Map<RideStatus, RideStatus> nextStatus = Map.of(
         RideStatus.PENDING, RideStatus.ACCEPTED,
@@ -53,13 +55,13 @@ public class RideService {
     static Logger LOGGER = utils.getLogger(RideService.class);
 
     public RideService(RideRepository rideRepository, UserRepository userRepository, DriverRepository driverRepository,
-            WsNotifier driverNotifier, IDistanceCalculator distanceCalculator, KieSession kieSession) {
+            WsNotifier driverNotifier, IDistanceCalculator distanceCalculator, DroolsService kieSession) {
         this.rideRepository = rideRepository;
         this.userRepository = userRepository;
         this.driverRepository = driverRepository;
         this.notifier = driverNotifier;
         this.distanceCalculator = distanceCalculator;
-        this.kieSession = kieSession;
+        this.droolsService = kieSession;
     }
 
     @Transactional
@@ -115,15 +117,21 @@ public class RideService {
         
         RideModel ride = rideRepository.findById(rideId)
                 .orElseThrow(() -> new NotFoundException("Ride with id " + rideId));
-
+          
         validateRide(ride.getStatus(), newStatus);
 
+        if (newStatus == RideStatus.IN_PROGRESS) ride.setStartTime(LocalTime.now());
+        else if (newStatus == RideStatus.COMPLETED) ride.setEndTime(LocalTime.now());
+        
         ride.setStatus(newStatus);
         ride.setDriver(driver);
         rideRepository.save(ride);
-
+        
         notifier.notifyUser(String.valueOf(ride.getPassanger().getId()), "/queue/ride-status", RideResponseDTO.create(ride));
 
+        if (ride.getStatus() != RideStatus.ACCEPTED) droolsService.updateRideModel(ride);
+        else droolsService.insert(ride);
+        
         return ride;
     }
 
@@ -173,13 +181,18 @@ public class RideService {
     public RidePrice calculateRidePrice(PriceRequestDTO dto) {
         double distance = distanceCalculator.calculate(dto.getOrigin().getX(), dto.getOrigin().getY(), dto.getDestiny().getX(), dto.getDestiny().getY());
         LOGGER.info("Ride distance -> {}", distance);
-        RidePrice ridePrice = new RidePrice(distance);
-        
-        kieSession.insert(dto);
-        kieSession.insert(ridePrice);
-        
-        kieSession.fireAllRules();
 
+        RidePrice ridePrice = new RidePrice(distance);
+
+        droolsService.insert(dto);
+        droolsService.insert(ridePrice);
+        
+        droolsService.showObjectsInsideMemory();
+
+        droolsService.fireAllRules();
+
+        droolsService.deleteFacts();
+    
         return ridePrice;
     }
 
