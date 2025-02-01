@@ -13,23 +13,30 @@ import org.springframework.stereotype.Component;
 
 import com.example.zuum.Common.utils;
 import com.example.zuum.Driver.DriverModel;
-import com.example.zuum.Driver.DriverService;
 import com.example.zuum.Notification.Exception.UserIsNotConnectedException;
+import com.example.zuum.Ride.RideModel;
+import com.example.zuum.Ride.RideStatus;
 import com.example.zuum.Ride.Dto.RideRequestNotificationDTO;
 
 @Component
 public record WsNotifier(
-        SimpUserRegistry registry,
-        SimpMessagingTemplate template,
-        DriverService service) {
+    SimpUserRegistry registry,
+    SimpMessagingTemplate template
+) {
 
     static Logger LOGGER = utils.getLogger(WsNotifier.class);
 
     public void notifyUser(String userIdentifier, String destination, Object payload) {
+        
         if (registry.getUser(userIdentifier) == null) {
-            LOGGER.info("User {} is not connected", userIdentifier);
-            throw new UserIsNotConnectedException("The user to be notified is not connected");
+            // Throw this error only if the driver is accepting the Ride but the 
+            // passanger is not connected
+            if (payload instanceof RideModel && ((RideModel)payload).getStatus() == RideStatus.ACCEPTED) {
+                LOGGER.info("User {} is not connected", userIdentifier);
+                throw new UserIsNotConnectedException("The user to be notified is not connected");
+            }
         }
+
         LOGGER.info("Sending payload to User {}", userIdentifier);
         template.convertAndSendToUser(userIdentifier, destination, payload);
     }
