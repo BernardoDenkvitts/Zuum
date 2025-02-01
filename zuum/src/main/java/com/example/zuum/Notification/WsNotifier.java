@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 
 import com.example.zuum.Common.utils;
 import com.example.zuum.Driver.DriverModel;
+import com.example.zuum.Notification.Dto.WsMessageDTO;
+import com.example.zuum.Notification.Dto.WsMessageType;
 import com.example.zuum.Notification.Exception.UserIsNotConnectedException;
 import com.example.zuum.Ride.RideStatus;
 import com.example.zuum.Ride.Dto.RideRequestNotificationDTO;
@@ -42,7 +44,7 @@ public record WsNotifier(
     }
 
     public void newRideRequest(RideRequestNotificationDTO dto, List<DriverModel> drivers) {
-        String rideRequestQueue = "/queue/ride-request";
+        String rideRequestQueue = "/queue/driver/ride-request";
         Set<SimpUser> subscribedDrivers = getSubscribers("/user" + rideRequestQueue);
         List<SimpUser> drivesToNotify = findOnlineNearbyDrivers(subscribedDrivers, drivers);
 
@@ -71,7 +73,7 @@ public record WsNotifier(
     private void notifyDrivers(List<SimpUser> driversToNotify, String queue, RideRequestNotificationDTO dto) {
         for (SimpUser driver : driversToNotify) {
             LOGGER.info("Sending new ride request to driver {}", driver.getName());
-            template.convertAndSendToUser(driver.getName(), queue, dto);
+            template.convertAndSendToUser(driver.getName(), queue, new WsMessageDTO(WsMessageType.RIDE_REQUEST, dto));
         }
     }
 
