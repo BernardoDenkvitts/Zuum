@@ -20,6 +20,8 @@ import com.example.zuum.Driver.DriverModel;
 import com.example.zuum.Driver.DriverRepository;
 import com.example.zuum.Drools.DroolsService;
 import com.example.zuum.Notification.WsNotifier;
+import com.example.zuum.Notification.Dto.WsMessageDTO;
+import com.example.zuum.Notification.Dto.WsMessageType;
 import com.example.zuum.Ride.Dto.NewRideDTO;
 import com.example.zuum.Ride.Dto.PriceRequestDTO;
 import com.example.zuum.Ride.Dto.RideResponseDTO;
@@ -70,7 +72,7 @@ public class RideService {
             throw new DriverRequestRideException();
         }
 
-        if (rideRepository.isUserInARide(user.getId())) {
+        if (rideRepository.findActiveRideByUser(user.getId()).isPresent()) {
             throw new UserInARideException("Passanger with id " + user.getId() + " is in a ride");
         }
 
@@ -119,16 +121,18 @@ public class RideService {
 
         if (newStatus == RideStatus.IN_PROGRESS) ride.setStartTime(LocalTime.now());
         else if (newStatus == RideStatus.COMPLETED) ride.setEndTime(LocalTime.now());
-        
+
         ride.setStatus(newStatus);
         ride.setDriver(driver);
         rideRepository.save(ride);
-        
-        notifier.notifyUser(String.valueOf(ride.getPassanger().getId()), "/queue/ride-status", RideResponseDTO.create(ride));
+
+        notifier.notifyUser(
+            String.valueOf(ride.getPassanger().getId()), "/queue/ride",
+            new WsMessageDTO(WsMessageType.RIDE_UPDATE, RideResponseDTO.create(ride)));
 
         if (ride.getStatus() != RideStatus.ACCEPTED) droolsService.updateRideModel(ride);
         else droolsService.insert(ride);
-        
+
         return ride;
     }
 
@@ -137,7 +141,7 @@ public class RideService {
             throw new UserIsNotDriverException();
         }
 
-        if (newStatus == RideStatus.ACCEPTED && rideRepository.isUserInARide(id)) {
+        if (newStatus == RideStatus.ACCEPTED && rideRepository.findActiveRideByUser(id).isPresent()) {
             throw new UserInARideException("Driver with id " + id + " is in a ride");
         }
     }
@@ -185,13 +189,11 @@ public class RideService {
 
         droolsService.insert(dto);
         droolsService.insert(ridePrice);
-        
-        droolsService.showObjectsInsideMemory();
 
         droolsService.fireAllRules();
 
         droolsService.deleteFacts();
-    
+
         return ridePrice;
     }
 
