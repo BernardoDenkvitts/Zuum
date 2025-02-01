@@ -14,9 +14,9 @@ import org.springframework.stereotype.Component;
 import com.example.zuum.Common.utils;
 import com.example.zuum.Driver.DriverModel;
 import com.example.zuum.Notification.Exception.UserIsNotConnectedException;
-import com.example.zuum.Ride.RideModel;
 import com.example.zuum.Ride.RideStatus;
 import com.example.zuum.Ride.Dto.RideRequestNotificationDTO;
+import com.example.zuum.Ride.Dto.RideResponseDTO;
 
 @Component
 public record WsNotifier(
@@ -31,7 +31,7 @@ public record WsNotifier(
         if (registry.getUser(userIdentifier) == null) {
             // Throw this error only if the driver is accepting the Ride but the 
             // passanger is not connected
-            if (payload instanceof RideModel && ((RideModel)payload).getStatus() == RideStatus.ACCEPTED) {
+            if (payload instanceof RideResponseDTO && ((RideResponseDTO)payload).status() == RideStatus.ACCEPTED) {
                 LOGGER.info("User {} is not connected", userIdentifier);
                 throw new UserIsNotConnectedException("The user to be notified is not connected");
             }
