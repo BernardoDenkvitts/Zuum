@@ -14,6 +14,12 @@ import com.example.zuum.Driver.Dto.UpdateDriverDataDTO;
 import com.example.zuum.Driver.exception.DriverAlreadyExistsException;
 import com.example.zuum.Driver.exception.DriverLicenseLinkedToAnotherDriverException;
 import com.example.zuum.Driver.exception.PlateLinkedToAnotherCarException;
+import com.example.zuum.Notification.WsNotifier;
+import com.example.zuum.Notification.Dto.WsMessageDTO;
+import com.example.zuum.Notification.Dto.WsMessageType;
+import com.example.zuum.Ride.RideModel;
+import com.example.zuum.Ride.RideRepository;
+import com.example.zuum.Ride.RideStatus;
 import com.example.zuum.User.UserModel;
 import com.example.zuum.User.UserRepository;
 
@@ -22,12 +28,17 @@ public class DriverService {
 
     private final DriverRepository driverRepository;
     private final UserRepository userRepository;
-    
-    public DriverService(DriverRepository driverRepository, UserRepository userRepository) {
+    private final RideRepository rideRepository;
+    private final WsNotifier wsNotifier;
+
+    public DriverService(DriverRepository driverRepository, UserRepository userRepository,
+            RideRepository rideRepository, WsNotifier wsNotifier) {
         this.driverRepository = driverRepository;
         this.userRepository = userRepository;
+        this.rideRepository = rideRepository;
+        this.wsNotifier = wsNotifier;
     }
-    
+
     public DriverModel getInformations(Integer id) {
         return driverRepository.findById(id).orElseThrow(() -> new NotFoundException("Driver with id " + id));
     }
@@ -36,8 +47,18 @@ public class DriverService {
     public DriverModel updateLocation(LocationDTO dto) {
         DriverModel driver = driverRepository.findById(dto.driverId())
                 .orElseThrow(() -> new NotFoundException("Driver with id " + dto.driverId()));
+
         driver.updateLocation(dto.currLocation());
         driverRepository.save(driver);
+
+        Optional<RideModel> activeRide = rideRepository.findActiveRideByUser(driver.getId());
+
+        // Send the driver's location to the passanger in real time
+        if (activeRide.isPresent() && activeRide.get().getStatus() == RideStatus.ACCEPTED) {
+            Integer passangerId = activeRide.get().getPassanger().getId();
+            wsNotifier.notifyUser(String.valueOf(passangerId),
+             "/queue/ride", new WsMessageDTO(WsMessageType.DRIVER_LOCATION_UPDATE, driver.getCurrLocation()));
+        }
 
         return driver;
     }
