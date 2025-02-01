@@ -22,11 +22,10 @@ import com.example.zuum.Driver.exception.DriverLicenseLinkedToAnotherDriverExcep
 import com.example.zuum.Driver.exception.PlateLinkedToAnotherCarException;
 import com.example.zuum.Notification.Exception.UserIsNotConnectedException;
 import com.example.zuum.Ride.RideStatus;
-import com.example.zuum.Ride.exception.DriverAlreadyHasAnAcceptedRideException;
 import com.example.zuum.Ride.exception.DriverRequestRideException;
 import com.example.zuum.Ride.exception.MissingNecessaryParameters;
-import com.example.zuum.Ride.exception.RideRequestExistsException;
 import com.example.zuum.Ride.exception.RideStatusNotAllowed;
+import com.example.zuum.Ride.exception.UserInARideException;
 import com.example.zuum.Ride.exception.UserIsNotDriverException;
 import com.example.zuum.Ride.exception.UserNotRelatedToRide;
 import com.example.zuum.User.Exception.EmailAlreadyInUseException;
@@ -89,8 +88,8 @@ public class ExceptionsHandler {
     }
 
     @ExceptionHandler({ 
-        RideRequestExistsException.class, EmailAlreadyInUseException.class, DriverAlreadyExistsException.class,
-        PlateLinkedToAnotherCarException.class, DriverLicenseLinkedToAnotherDriverException.class, DriverAlreadyHasAnAcceptedRideException.class
+        UserInARideException.class, EmailAlreadyInUseException.class, DriverAlreadyExistsException.class,
+        PlateLinkedToAnotherCarException.class, DriverLicenseLinkedToAnotherDriverException.class
     })
     public ProblemDetail handleConflict(RuntimeException ex) {
         ProblemDetail pb = getProblemDetail(HttpStatus.CONFLICT);
