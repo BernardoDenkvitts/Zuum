@@ -108,7 +108,7 @@ public class RideService {
     @Transactional
     public RideModel updateRideStatus(Integer rideId, Integer driverId, RideStatus newStatus) {
         DriverModel driver = driverRepository.findById(driverId)
-                .orElseThrow(() -> new NotFoundException("Driver with id " + rideId));
+                .orElseThrow(() -> new NotFoundException("Driver with id " + driverId));
 
         validateDriver(driver.getUser().getUserType(), newStatus, driverId);
 
