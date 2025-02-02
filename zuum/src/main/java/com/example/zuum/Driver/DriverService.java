@@ -51,14 +51,16 @@ public class DriverService {
         driver.updateLocation(dto.currLocation());
         driverRepository.save(driver);
 
-        Optional<RideModel> activeRide = rideRepository.findActiveRideByUser(driver.getId());
+        CompletableFuture.runAsync(() -> {
+            Optional<RideModel> activeRide = rideRepository.findActiveRideByUser(driver.getId(), true);
 
-        // Send the driver's location to the passanger in real time
-        if (activeRide.isPresent() && activeRide.get().getStatus() == RideStatus.ACCEPTED) {
-            Integer passangerId = activeRide.get().getPassanger().getId();
-            wsNotifier.notifyUser(String.valueOf(passangerId),
-             "/queue/ride", new WsMessageDTO(WsMessageType.DRIVER_LOCATION_UPDATE, driver.getCurrLocation()));
-        }
+            // Send the driver's location to the passenger in real time
+            if (activeRide.isPresent() && activeRide.get().getStatus() == RideStatus.ACCEPTED) {
+                Integer passengerId = activeRide.get().getPassenger().getId();
+                wsNotifier.notifyUser(String.valueOf(passengerId),
+                        "/queue/ride", new WsMessageDTO(WsMessageType.DRIVER_LOCATION_UPDATE, driver.getCurrLocation()));
+            }
+        });
 
         return driver;
     }
