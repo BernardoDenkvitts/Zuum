@@ -32,7 +32,7 @@ public record WsNotifier(
         
         if (registry.getUser(userIdentifier) == null) {
             // Throw this error only if the driver is accepting the Ride but the 
-            // passanger is not connected
+            // passenger is not connected
             if (payload instanceof RideResponseDTO && ((RideResponseDTO)payload).status() == RideStatus.ACCEPTED) {
                 LOGGER.info("User {} is not connected", userIdentifier);
                 throw new UserIsNotConnectedException("The user to be notified is not connected");

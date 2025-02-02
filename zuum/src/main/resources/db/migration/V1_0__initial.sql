@@ -1,4 +1,3 @@
-
 CREATE EXTENSION postgis;
 
 CREATE TABLE "user" (

@@ -15,26 +15,24 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.locationtech.jts.geom.Point;
 
 public record RideResponseDTO(
-    Integer id,
+        Integer id,
 
-    DriverResponseDTO driver,
-    UserResponseDTO passanger,
+        DriverResponseDTO driver,
+        UserResponseDTO passenger,
 
-    RideStatus status,
-    BigDecimal price,
+        RideStatus status,
+        BigDecimal price,
 
-    @JsonSerialize(using = PointSerializer.class)
-    Point origin,
+        @JsonSerialize(using = PointSerializer.class) Point origin,
 
-    @JsonSerialize(using = PointSerializer.class)
-    Point destiny,
+        @JsonSerialize(using = PointSerializer.class) Point destiny,
 
-    @JsonProperty("created_at") @JsonFormat(shape = JsonFormat.Shape.STRING) LocalDateTime createdAt
+        @JsonProperty("created_at") @JsonFormat(shape = JsonFormat.Shape.STRING) LocalDateTime createdAt
 ) {
     public static RideResponseDTO create(RideModel model) {
         DriverResponseDTO driverResponseDTO = model.getDriver() == null ? null : DriverResponseDTO.create(model.getDriver());
 
-        return new RideResponseDTO(model.getId(), driverResponseDTO, UserResponseDTO.create(model.getPassanger()),
-                                   model.getStatus(), model.getPrice(), model.getOrigin(), model.getDestiny(), model.getCreatedAt());
+        return new RideResponseDTO(model.getId(), driverResponseDTO, UserResponseDTO.create(model.getPassenger()),
+                model.getStatus(), model.getPrice(), model.getOrigin(), model.getDestiny(), model.getCreatedAt());
     }
 }

@@ -65,7 +65,7 @@ rule "active-daily-user"
         $price: RidePrice()
         $request : PriceRequestDTO()
         accumulate (
-            $ride: RideModel( passanger.getId() == $request.userId, status.name() == "COMPLETED" ) over window:time( 25h ),
+            $ride: RideModel( passenger.getId() == $request.userId, status.name() == "COMPLETED" ) over window:time( 25h ),
             $rideCount: count( $ride )
         ) eval( $rideCount == 3 )
     then
@@ -78,7 +78,7 @@ rule "fast-stop"
         $price: RidePrice()
         $request : PriceRequestDTO()
         accumulate (
-            $ride: RideModel( passanger.getId() == $request.userId, status.name() == "COMPLETED" ) over window:time( 11m ),
+            $ride: RideModel( passenger.getId() == $request.userId, status.name() == "COMPLETED" ) over window:time( 11m ),
             $rideCount: count( $ride )
         ) eval( $rideCount >= 1 )
     then
@@ -91,7 +91,7 @@ rule "frequent-user-last-hour"
         $price: RidePrice()
         $request: PriceRequestDTO()
         accumulate(
-            $ride: RideModel( passanger.getId() == $request.userId, status.name() == "COMPLETED" ) over window:time( 1h ),
+            $ride: RideModel( passenger.getId() == $request.userId, status.name() == "COMPLETED" ) over window:time( 1h ),
             $rideCount : count( $ride )
         ) eval( $rideCount >= 2 )
     then
@@ -104,7 +104,7 @@ rule "long-ride-last-two-hours"
         $price: RidePrice()
         $request: PriceRequestDTO()
         accumulate(
-            $ride: RideModel( passanger.getId() == $request.userId, status.name() == "COMPLETED", getRideDuration().toMinutes() >= 30 ) over window:time( 2h ),
+            $ride: RideModel( passenger.getId() == $request.userId, status.name() == "COMPLETED", getRideDuration().toMinutes() >= 30 ) over window:time( 2h ),
             $rideCount : count( $ride )
         ) eval( $rideCount >= 1 )
     then

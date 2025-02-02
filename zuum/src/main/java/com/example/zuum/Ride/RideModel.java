@@ -37,8 +37,8 @@ public class RideModel {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "passanger_id", referencedColumnName = "id")
-    private UserModel passanger;
+    @JoinColumn(name = "passenger_id", referencedColumnName = "id")
+    private UserModel passenger;
 
     @ManyToOne
     @JoinColumn(name = "driver_id", referencedColumnName = "id")
@@ -51,7 +51,7 @@ public class RideModel {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-    
+
     // This field helps to manage @timestamp in Drools' memory
     @Transient
     private Date date;
@@ -77,7 +77,7 @@ public class RideModel {
     public RideModel(Integer id, UserModel user, DriverModel driver, RideStatus status, BigDecimal price,
             LocalDateTime createdAt, LocalTime startTime, LocalTime endTime, Point origin, Point destiny) {
         this.id = id;
-        this.passanger = user;
+        this.passenger = user;
         this.driver = driver;
         this.status = status;
         this.price = price;
@@ -90,7 +90,7 @@ public class RideModel {
     }
 
     public RideModel(UserModel user, BigDecimal price, Point origin, Point destiny) {
-        this.passanger = user;
+        this.passenger = user;
         this.status = RideStatus.PENDING;
         this.price = price;
         this.createdAt = LocalDateTime.now();
@@ -113,8 +113,8 @@ public class RideModel {
         return id;
     }
 
-    public UserModel getPassanger() {
-        return passanger;
+    public UserModel getPassenger() {
+        return passenger;
     }
 
     public DriverModel getDriver() {
@@ -132,7 +132,7 @@ public class RideModel {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
-    
+
     public Date getDate() {
         return this.date;
     }

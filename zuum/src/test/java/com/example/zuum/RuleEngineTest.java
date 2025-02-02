@@ -56,8 +56,8 @@ public class RuleEngineTest {
     }
 
     private UserModel getTestUser() {
-        return new UserModel(userId, "Test User Drools", "testdrools@gmail.com", UserType.PASSANGER, null,
-        null);
+        return new UserModel(userId, "Test User Drools", "testdrools@gmail.com", UserType.PASSENGER, null,
+                null);
     }
 
     private RidePrice getRidePrice() {
@@ -95,7 +95,8 @@ public class RuleEngineTest {
 
         IntStream.range(0, 3).forEach(i -> {
             LocalDateTime rideTime = LocalDateTime.now().minusHours(5 * i);
-            RideModel ride = new RideModel(1, user, null, RideStatus.COMPLETED, new BigDecimal(10.0), rideTime, LocalTime.now(), null,
+            RideModel ride = new RideModel(1, user, null, RideStatus.COMPLETED, new BigDecimal(10.0), rideTime,
+                    LocalTime.now(), null,
                     null, null);
 
             droolsService.insert(ride);
@@ -118,7 +119,7 @@ public class RuleEngineTest {
 
         LocalDateTime rideTime = LocalDateTime.now().minusMinutes(10);
         RideModel ride = new RideModel(1, user, null, RideStatus.COMPLETED,
-                    new BigDecimal(10.0), rideTime, LocalTime.now(), null, null, null);
+                new BigDecimal(10.0), rideTime, LocalTime.now(), null, null, null);
 
         droolsService.insert(ridePrice);
         droolsService.insert(priceRequestDTO);
@@ -140,7 +141,7 @@ public class RuleEngineTest {
         LocalTime startTime = LocalTime.now().minusMinutes(31);
         LocalTime endTime = LocalTime.now();
         RideModel ride = new RideModel(1, user, null, RideStatus.COMPLETED,
-                    new BigDecimal(10.0), createdAt, startTime, endTime, null, null);
+                new BigDecimal(10.0), createdAt, startTime, endTime, null, null);
 
         droolsService.insert(ridePrice);
         droolsService.insert(priceRequestDTO);
@@ -160,14 +161,14 @@ public class RuleEngineTest {
 
         LocalDateTime createdAt = LocalDateTime.now().minusMinutes(5);
         RideModel ride = new RideModel(1, user, null, RideStatus.COMPLETED,
-                    new BigDecimal(10.0), createdAt, null, null, null, null);
-        
+                new BigDecimal(10.0), createdAt, null, null, null, null);
+
         droolsService.insert(ride);
-        
+
         LocalDateTime createdAt2 = LocalDateTime.now().minusMinutes(3);
         RideModel ride2 = new RideModel(2, user, null, RideStatus.COMPLETED,
-        new BigDecimal(10.0), createdAt2, null, null, null, null);
-        
+                new BigDecimal(10.0), createdAt2, null, null, null, null);
+
         droolsService.insert(ride2);
 
         droolsService.insert(priceRequestDTO);
@@ -175,8 +176,9 @@ public class RuleEngineTest {
 
         int fired = droolsService.fireAllRules();
         assertEquals(2, fired);
-        
-        assertEquals(new BigDecimal(6.84).setScale(2, RoundingMode.HALF_UP), ridePrice.getPrice().setScale(2, RoundingMode.HALF_UP));
+
+        assertEquals(new BigDecimal(6.84).setScale(2, RoundingMode.HALF_UP),
+                ridePrice.getPrice().setScale(2, RoundingMode.HALF_UP));
     }
 
     @Test
@@ -187,29 +189,30 @@ public class RuleEngineTest {
 
         LocalDateTime createdAt = LocalDateTime.now().minusMinutes(5);
         RideModel ride = new RideModel(1, user, null, RideStatus.COMPLETED,
-                    new BigDecimal(10.0), createdAt, null, null, null, null);
-        
+                new BigDecimal(10.0), createdAt, null, null, null, null);
+
         droolsService.insert(ride);
-        
+
         LocalDateTime createdAt2 = LocalDateTime.now().minusMinutes(3);
         RideModel ride2 = new RideModel(2, user, null, RideStatus.COMPLETED,
-        new BigDecimal(10.0), createdAt2, null, null, null, null);
-        
+                new BigDecimal(10.0), createdAt2, null, null, null, null);
+
         droolsService.insert(ride2);
-        
+
         LocalDateTime createdAt3 = LocalDateTime.now().minusHours(24);
         RideModel ride3 = new RideModel(2, user, null, RideStatus.COMPLETED,
-        new BigDecimal(10.0), createdAt3, null, null, null, null);
-        
+                new BigDecimal(10.0), createdAt3, null, null, null, null);
+
         droolsService.insert(ride3);
-        
+
         droolsService.insert(priceRequestDTO);
         droolsService.insert(ridePrice);
 
         int fired = droolsService.fireAllRules();
         assertEquals(3, fired);
-        
-        assertEquals(new BigDecimal(6.5).setScale(2, RoundingMode.HALF_UP), ridePrice.getPrice().setScale(2, RoundingMode.HALF_UP));
+
+        assertEquals(new BigDecimal(6.5).setScale(2, RoundingMode.HALF_UP),
+                ridePrice.getPrice().setScale(2, RoundingMode.HALF_UP));
     }
 
 }
