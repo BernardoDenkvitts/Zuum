@@ -66,14 +66,14 @@ public class RideService {
     @Transactional
     public RideModel requestRide(NewRideDTO dto) {
         UserModel user = userRepository.findById(dto.userId())
-                .orElseThrow(() -> new NotFoundException("Passanger with id " + dto.userId()));
+                .orElseThrow(() -> new NotFoundException("Passenger with id " + dto.userId()));
 
         if (user.getUserType() == UserType.DRIVER) {
             throw new DriverRequestRideException();
         }
 
-        if (rideRepository.findActiveRideByUser(user.getId()).isPresent()) {
-            throw new UserInARideException("Passanger with id " + user.getId() + " is in a ride");
+        if (rideRepository.findActiveRideByUser(user.getId(), false).isPresent()) {
+            throw new UserInARideException("Passenger with id " + user.getId() + " is in a ride");
         }
 
         RideModel newRideRequest = rideRepository.save(dto.toRideModel(user));
@@ -100,9 +100,7 @@ public class RideService {
         DriverModel driver = driverRepository.findById(driverId)
                 .orElseThrow(() -> new NotFoundException("Driver with id " + driverId));
 
-        if (driver.getUser().getUserType() == UserType.PASSANGER) {
-            throw new UserIsNotDriverException();
-        }
+        if (driver.getUser().getUserType() == UserType.PASSENGER) throw new UserIsNotDriverException();
 
         return rideRepository.findPendingNearbyRides(longt, lat, 6000f, pageable);
     }
@@ -126,9 +124,8 @@ public class RideService {
         ride.setDriver(driver);
         rideRepository.save(ride);
 
-        notifier.notifyUser(
-            String.valueOf(ride.getPassanger().getId()), "/queue/ride",
-            new WsMessageDTO(WsMessageType.RIDE_UPDATE, RideResponseDTO.create(ride)));
+        notifier.notifyUser(String.valueOf(ride.getPassenger().getId()), "/queue/ride",
+                            new WsMessageDTO(WsMessageType.RIDE_UPDATE, RideResponseDTO.create(ride)));
 
         if (ride.getStatus() != RideStatus.ACCEPTED) droolsService.updateRideModel(ride);
         else droolsService.insert(ride);
@@ -137,19 +134,15 @@ public class RideService {
     }
 
     private void validateDriver(UserType type, RideStatus newStatus, Integer id) {
-        if (type != UserType.DRIVER) {
-            throw new UserIsNotDriverException();
-        }
+        if (type != UserType.DRIVER) throw new UserIsNotDriverException();
 
-        if (newStatus == RideStatus.ACCEPTED && rideRepository.findActiveRideByUser(id).isPresent()) {
+        if (newStatus == RideStatus.ACCEPTED && rideRepository.findActiveRideByUser(id, true).isPresent()) {
             throw new UserInARideException("Driver with id " + id + " is in a ride");
         }
     }
 
     private void validateRide(RideStatus currentStatus, RideStatus newStatus) {
-        if (currentStatus == RideStatus.COMPLETED) {
-            throw new RideStatusNotAllowed("The ride is completed, it cannot change its status");
-        }
+        if (currentStatus == RideStatus.COMPLETED) throw new RideStatusNotAllowed("The ride is completed, it cannot change its status");
 
         if (nextStatus.get(currentStatus) != newStatus) {
             throw new RideStatusNotAllowed("Ride Status " + newStatus.name() + " not allowed, the next status must be "
@@ -157,13 +150,11 @@ public class RideService {
         }
     }
 
-    public RideModel getData(Integer rideId, Integer driverId, Integer passangerId) {
+    public RideModel getData(Integer rideId, Integer driverId, Integer passengerId) {
         RideModel ride = rideRepository.findById(rideId)
                 .orElseThrow(() -> new NotFoundException("Ride with id " + rideId));
 
-        if (driverId == null && passangerId == null) {
-            throw new MissingNecessaryParameters();
-        }
+        if (driverId == null && passengerId == null) throw new MissingNecessaryParameters();
 
         if (driverId != null) {
             driverRepository.findById(driverId).orElseThrow(() -> new NotFoundException("Driver with id " + driverId));
@@ -171,10 +162,10 @@ public class RideService {
                 throw new UserNotRelatedToRide("Driver with id " + driverId + " is not related to ride");
             }
         } else {
-            userRepository.findById(passangerId)
-                    .orElseThrow(() -> new NotFoundException("Passanger with id " + passangerId));
-            if (ride.getPassanger().getId() != passangerId) {
-                throw new UserNotRelatedToRide("Passanger with id " + passangerId + " is not related to ride");
+            userRepository.findById(passengerId).orElseThrow(() -> new NotFoundException("Passenger with id " + passengerId));
+
+            if (ride.getPassenger().getId() != passengerId) {
+                throw new UserNotRelatedToRide("Passenger with id " + passengerId + " is not related to ride");
             }
         }
 

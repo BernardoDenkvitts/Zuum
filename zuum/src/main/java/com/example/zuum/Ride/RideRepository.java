@@ -18,6 +18,6 @@ public interface RideRepository extends JpaRepository<RideModel, Integer> {
     @Query(value = "SELECT * FROM ride WHERE ride.status = 'PENDING' AND ST_DWithin(ride.origin, ST_SetSRID(ST_MakePoint(:longt, :lat), 4326)::geography, :maxDistance) ORDER BY ride.id", nativeQuery = true)
     Page<RideModel> findPendingNearbyRides(double longt, double lat, float maxDistance, Pageable pageable);
 
-    @Query("SELECT r FROM RideModel r WHERE (r.driver.id = :userId OR r.passanger.id = :userId) AND r.status != 'COMPLETED'")
-    Optional<RideModel> findActiveRideByUser(Integer userId);
+    @Query("SELECT r FROM RideModel r WHERE ((:isDriver = true AND r.driver.id = :userId) OR (:isDriver = false AND r.passenger.id = :userId)) AND r.status != 'COMPLETED'")
+    Optional<RideModel> findActiveRideByUser(Integer userId, boolean isDriver);
 }
