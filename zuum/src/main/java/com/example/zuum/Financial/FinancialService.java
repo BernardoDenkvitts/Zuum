@@ -7,10 +7,8 @@ import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 
 import com.example.zuum.Common.Exception.NotFoundException;
-import com.example.zuum.Driver.DriverModel;
 import com.example.zuum.Driver.DriverRepository;
 import com.example.zuum.Ride.RideRepository;
-import com.example.zuum.User.UserModel;
 import com.example.zuum.User.UserRepository;
 
 @Service
