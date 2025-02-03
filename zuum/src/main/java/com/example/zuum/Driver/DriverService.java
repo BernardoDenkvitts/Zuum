@@ -4,6 +4,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -131,6 +133,12 @@ public class DriverService {
                 throw new RuntimeException("Unexpected validation error", e.getCause());
             }
         }
+    }
+
+    public Page<RideModel> getRides(Integer driverId, Pageable pageable) {
+        driverRepository.findById(driverId).orElseThrow(() -> new NotFoundException("Driver with id " + driverId));
+  
+        return rideRepository.findRides(null, driverId, pageable);
     }
 
 }

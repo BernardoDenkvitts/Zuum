@@ -2,11 +2,15 @@ package com.example.zuum.User;
 
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.zuum.Common.Exception.NotFoundException;
 import com.example.zuum.Driver.DriverRepository;
+import com.example.zuum.Ride.RideModel;
+import com.example.zuum.Ride.RideRepository;
 import com.example.zuum.User.Dto.UpdateUserDataDTO;
 import com.example.zuum.User.Exception.EmailAlreadyInUseException;
 import com.example.zuum.User.Exception.MissingDriverProfileException;
@@ -15,10 +19,12 @@ import com.example.zuum.User.Exception.MissingDriverProfileException;
 public class UserService {
     private final UserRepository userRepository;
     private final DriverRepository driverRepository;
+    private final RideRepository rideRepository;
 
-    public UserService(UserRepository repository, DriverRepository driverRepository) {
+    public UserService(UserRepository repository, DriverRepository driverRepository, RideRepository rideRepository) {
         this.userRepository = repository;
         this.driverRepository = driverRepository;
+        this.rideRepository = rideRepository;
     }
 
     @Transactional
@@ -49,6 +55,12 @@ public class UserService {
         userRepository.save(user);
         
         return user;
+    }
+
+    public Page<RideModel> getRides(Integer userId, Pageable pageable) {
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User with id " + userId));
+  
+        return rideRepository.findRides(userId, null, pageable);
     }
 
 }
