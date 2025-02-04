@@ -2,7 +2,12 @@ package com.example.zuum.User;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.zuum.Ride.RideModel;
 import com.example.zuum.User.CustomValidation.MaxAge;
@@ -18,20 +23,28 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 
 @Entity
 @Table(name = "`user`", uniqueConstraints = @UniqueConstraint(columnNames = {"email"}))
-public class UserModel {
+public class UserModel implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     
+    @NotBlank
+    @NotNull
     private String name;
 
     @Email(message = "Invalid email")
     private String email;
+
+    @NotBlank(message = "Password cannot be blank")
+    @NotNull(message = "Password cannot be null")
+    private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
@@ -53,6 +66,16 @@ public class UserModel {
         this.name = name;
         this.email = email;
         this.userType = userType;
+        this.cellphone = cellphone;
+        this.birthday = birthday;
+    }
+
+    public UserModel(String name, String email, String password, String cellphone, LocalDate birthday) {
+        this.id = null;
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.userType = UserType.PASSENGER;
         this.cellphone = cellphone;
         this.birthday = birthday;
     }
@@ -103,6 +126,21 @@ public class UserModel {
 
     public List<RideModel> getRides() {
         return rides;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
     }
 
 }
