@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -101,7 +102,7 @@ public class ExceptionsHandler {
     }
 
     @ExceptionHandler({UserIsNotDriverException.class, DriverRequestRideException.class})
-    public ProblemDetail handleUnauthorized(RuntimeException ex) {
+    public ProblemDetail handleForbidden(RuntimeException ex) {
         ProblemDetail pb = getProblemDetail(HttpStatus.FORBIDDEN);
         pb.setTitle("Forbidden");
         pb.setType(URI.create("Zuum/forbidden"));
@@ -129,6 +130,16 @@ public class ExceptionsHandler {
         ProblemDetail pb = getProblemDetail(HttpStatus.NO_CONTENT);
         pb.setTitle("No Content");
         pb.setType(URI.create("Zuum/no-content"));
+        pb.setDetail(ex.getMessage());
+
+        return pb;
+    }
+    
+    @ExceptionHandler(BadCredentialsException.class)
+    public ProblemDetail handleUnauthorized(RuntimeException ex) {
+        ProblemDetail pb = getProblemDetail(HttpStatus.UNAUTHORIZED);
+        pb.setTitle("Unauthorized");
+        pb.setType(URI.create("Zuum/unauthorized"));
         pb.setDetail(ex.getMessage());
 
         return pb;
