@@ -8,7 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.auth0.jwt.interfaces.DecodedJWT;
 import com.example.zuum.User.UserRepository;
 
 import jakarta.servlet.FilterChain;
@@ -32,10 +31,9 @@ public class SecurityFilter extends OncePerRequestFilter {
         var token = this.recoverToken(request);
 
         if (token != null) {
-            DecodedJWT decodedJWT = tokenService.validateToken(token);
-
-            String email = decodedJWT.getClaim("email").asString();
+            String email = tokenService.getEmail(token);
             UserDetails user = userRepository.findByEmail(email).orElse(null);
+            
             if (user == null) response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 
             var auth = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
