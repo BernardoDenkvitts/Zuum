@@ -12,20 +12,20 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.zuum.Auth.Dto.LoginDTO;
 import com.example.zuum.Auth.Dto.LoginResponseDTO;
-import com.example.zuum.Auth.Dto.RegisterResponseDTO;
 import com.example.zuum.Auth.Dto.RegisterUserDTO;
 import com.example.zuum.User.UserModel;
+import com.example.zuum.User.Dto.UserResponseDTO;
 
 @RestController
 @RequestMapping("/auth")
 public record AuthController(AuthService service) {
 
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponseDTO> register(@RequestBody @Validated RegisterUserDTO dto) {
+    public ResponseEntity<UserResponseDTO> register(@RequestBody @Validated RegisterUserDTO dto) {
         UserModel newUser = service.create(dto);
         URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/users/{id}").buildAndExpand(newUser.getId()).toUri();
 
-        return ResponseEntity.created(location).body(new RegisterResponseDTO(newUser, newUser.getPassword())); 
+        return ResponseEntity.created(location).body(UserResponseDTO.create(newUser)); 
     }
     
     @PostMapping("/login")
