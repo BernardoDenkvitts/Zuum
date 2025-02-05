@@ -66,7 +66,7 @@ public record WsNotifier(
     private List<SimpUser> findOnlineNearbyDrivers(Set<SimpUser> subscribedDrivers, List<DriverModel> nearbyDrivers) {
         return subscribedDrivers.stream()
                 .filter(sub -> nearbyDrivers.stream()
-                        .anyMatch(driver -> String.valueOf(driver.getUser().getId()).equals(sub.getName())))
+                        .anyMatch(driver -> driver.getUser().getEmail().equals(sub.getName())))
                 .toList();
     }
 

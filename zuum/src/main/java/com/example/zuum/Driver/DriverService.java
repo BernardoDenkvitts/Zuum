@@ -58,8 +58,8 @@ public class DriverService {
 
             // Send the driver's location to the passenger in real time
             if (activeRide.isPresent() && activeRide.get().getStatus() == RideStatus.ACCEPTED) {
-                Integer passengerId = activeRide.get().getPassenger().getId();
-                wsNotifier.notifyUser(String.valueOf(passengerId),
+                String passengerEmail = activeRide.get().getPassenger().getEmail();
+                wsNotifier.notifyUser(passengerEmail,
                         "/queue/ride", new WsMessageDTO(WsMessageType.DRIVER_LOCATION_UPDATE, driver.getCurrLocation()));
             }
         });

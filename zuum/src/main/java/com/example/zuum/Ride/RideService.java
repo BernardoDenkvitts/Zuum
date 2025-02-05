@@ -124,7 +124,7 @@ public class RideService {
         ride.setDriver(driver);
         rideRepository.save(ride);
 
-        notifier.notifyUser(String.valueOf(ride.getPassenger().getId()), "/queue/ride",
+        notifier.notifyUser(ride.getPassenger().getEmail(), "/queue/ride",
                             new WsMessageDTO(WsMessageType.RIDE_UPDATE, RideResponseDTO.create(ride)));
 
         if (ride.getStatus() != RideStatus.ACCEPTED) droolsService.updateRideModel(ride);
