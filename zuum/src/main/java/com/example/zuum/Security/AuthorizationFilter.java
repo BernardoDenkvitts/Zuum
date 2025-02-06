@@ -21,7 +21,6 @@ public class AuthorizationFilter extends OncePerRequestFilter {
     private final TokenService tokenService;
     DriverRepository driverRepository;
 
-    private final static Logger log = utils.getLogger(AuthorizationFilter.class);
     public AuthorizationFilter(TokenService tokenService, DriverRepository driverRepository) {
         this.tokenService = tokenService;
         this.driverRepository = driverRepository;
