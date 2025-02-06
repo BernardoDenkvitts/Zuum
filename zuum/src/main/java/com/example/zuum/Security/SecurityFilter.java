@@ -31,8 +31,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         var token = this.recoverToken(request);
 
         if (token != null) {
-            String email = tokenService.getEmail(token);
-            UserDetails user = userRepository.findByEmail(email).orElse(null);
+            UserDetails user = userRepository.findById(tokenService.getSubject(token)).orElse(null);
             
             if (user == null) response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 
