@@ -2,7 +2,7 @@ package com.example.zuum.Driver.Dto;
 
 import org.locationtech.jts.geom.Point;
 
-import com.example.zuum.Config.SwaggerCustomSchema.PointSchema;
+import com.example.zuum.Config.Swagger.PointSchema;
 import com.example.zuum.Driver.DriverModel;
 import com.example.zuum.User.Dto.UserResponseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
