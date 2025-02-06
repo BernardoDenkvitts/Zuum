@@ -41,7 +41,7 @@ public class SecurityConfig {
                     config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH"));
                     config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
                     config.setAllowCredentials(true);
-                    
+
                     return config;
                 }))
 
@@ -52,6 +52,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                     .requestMatchers(HttpMethod.POST, "/auth/register").permitAll()
                     .requestMatchers(HttpMethod.GET, "/ws/zuum/**").permitAll()
+                    .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "swagger-ui.html").permitAll()
                     .anyRequest().authenticated()
                 )
 

@@ -2,9 +2,12 @@ package com.example.zuum.Driver.Dto;
 
 import org.locationtech.jts.geom.Point;
 
+import com.example.zuum.Config.SwaggerCustomSchema.PointSchema;
 import com.example.zuum.Driver.DriverModel;
 import com.example.zuum.User.Dto.UserResponseDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 
 public record DriverResponseDTO(
     Integer id,
@@ -20,6 +23,7 @@ public record DriverResponseDTO(
     UserResponseDTO user,
 
     @JsonProperty("curr_location")
+    @Schema(implementation = PointSchema.class)
     Point currLocation
 ) {
     public static DriverResponseDTO create(DriverModel model) {
