@@ -101,7 +101,7 @@ public class ExceptionsHandler {
         return pb;
     }
 
-    @ExceptionHandler({UserIsNotDriverException.class, DriverRequestRideException.class})
+    @ExceptionHandler({UserIsNotDriverException.class, DriverRequestRideException.class, UserNotRelatedToRide.class})
     public ProblemDetail handleForbidden(RuntimeException ex) {
         ProblemDetail pb = getProblemDetail(HttpStatus.FORBIDDEN);
         pb.setTitle("Forbidden");
@@ -125,16 +125,6 @@ public class ExceptionsHandler {
         return pb;
     }
 
-    @ExceptionHandler(UserNotRelatedToRide.class)
-    public ProblemDetail handleNoContent(RuntimeException ex) {
-        ProblemDetail pb = getProblemDetail(HttpStatus.NO_CONTENT);
-        pb.setTitle("No Content");
-        pb.setType(URI.create("Zuum/no-content"));
-        pb.setDetail(ex.getMessage());
-
-        return pb;
-    }
-    
     @ExceptionHandler(BadCredentialsException.class)
     public ProblemDetail handleUnauthorized(RuntimeException ex) {
         ProblemDetail pb = getProblemDetail(HttpStatus.UNAUTHORIZED);
