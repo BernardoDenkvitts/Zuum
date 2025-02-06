@@ -22,6 +22,13 @@ import com.example.zuum.User.Dto.UserResponseDTO;
 @RestController
 @RequestMapping("/users")
 public record UserController(UserService service) {
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> getInformations(@PathVariable Integer id) {
+        UserModel user = service.getInformations(id);
+
+        return ResponseEntity.ok(UserResponseDTO.create(user));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<UserResponseDTO> updateInformations(@PathVariable Integer id, @RequestBody @Validated UpdateUserDataDTO dto) {
         UserModel user = service.updateInformations(id, dto);

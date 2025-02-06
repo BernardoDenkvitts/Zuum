@@ -27,6 +27,10 @@ public class UserService {
         this.rideRepository = rideRepository;
     }
 
+    public UserModel getInformations(Integer id) {
+        return userRepository.findById(id).orElseThrow(() -> new NotFoundException("User with id " + id));
+    }
+
     @Transactional
     public UserModel updateInformations(Integer id, UpdateUserDataDTO dto) {
         UserModel user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User with id " + id));
