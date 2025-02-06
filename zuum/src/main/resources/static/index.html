@@ -9,40 +9,55 @@
 
 <script>
     window.addEventListener('load', (e) => {
-        const socketPassanger = new SockJS('http://localhost:8080/ws/zuum')
+  
+        const socketPassenger = new SockJS('http://localhost:8080/ws/zuum')
+        const stompPassenger = Stomp.over(socketPassenger)
+        const passangerToken = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ6dXVtLWFwaSIsInN1YiI6IjIiLCJlbWFpbCI6ImFudG9uaW9fZGVua3ZpdHRzQGdtYWlsLmNvbSIsImV4cCI6MTczODgwMjc3OH0.krCyy8cTtRi4PhbtQVcIj1ImPekriejLoE3tmd-jiKo";
+
         const socketDriver = new SockJS('http://localhost:8080/ws/zuum')
-        const stomp = Stomp.over(socketPassanger)
-
         const stompDriver = Stomp.over(socketDriver)
-        stompDriver.connect({ Authorization: '14' }, (frame) => {
+        const driverToken = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ6dXVtLWFwaSIsInN1YiI6IjMiLCJlbWFpbCI6ImJlcm5hcmRvYXJjYXJpQGdtYWlsLmNvbSIsInR5cGUiOiJEUklWRVIiLCJleHAiOjE3Mzg3OTczOTR9.DLJ7vJY6ld6xSETt-nM7DWw2ex69P2bel7_zoy84flg";
 
-            stompDriver.subscribe('/user/queue/ride-request', (message) => {
+        stompDriver.connect({ Authorization: driverToken }, (frame) => {
+
+            stompDriver.subscribe('/user/queue/driver/ride-request', (message) => {
                 console.log('New ride request: ' + message.body);
             })
         
-            stompDriver.subscribe('/user/queue/reply', (message) => {
+            stompDriver.subscribe('/user/queue/driver/reply', (message) => {
                 console.log('Message received: ' + message.body);
             })
+
+            let i = 0;
+
+            function sendNextLocationUpdate() {
+                if (i < 100) {
+                    sendLocationUpdate(3, -52.83628526180858 + i, -28.73641961515877, stompDriver);
+                    i++;
+                    setTimeout(sendNextLocationUpdate, 200000);
+                }
+            }
+
+            sendNextLocationUpdate();
         })
 
-        //    const sendLocationUpdate = (driverId, latitude, longitude) => {
-        //         const locationDTO = {
-        //             driver_id: driverId,
-        //             curr_location: {
-        //                 x: latitude,
-        //                 y: longitude
-        //             }
-        //         };
+        const sendLocationUpdate = (driverId, longitude, latitude, driver) => {
+             const locationDTO = {
+                 driver_id: driverId,
+                 curr_location: {
+                     x: longitude,
+                     y: latitude
+                 }
+             };
 
-        //         stompLocation.send('/ws/zuum/location', {}, JSON.stringify(locationDTO));
-        //     };
+             driver.send('/ws/drivers/location', {}, JSON.stringify(locationDTO));
+         };
 
-        //     sendLocationUpdate(1, -15.55052, -70.633308);
-
-        stomp.connect({Authorization: '20'}, (frame) => {
-            stomp.subscribe('/user/queue/ride-status', (message) => {
-                console.log('Your ride status was updated: ' + message.body);
+        stompPassenger.connect({ Authorization: passangerToken }, (frame) => {
+            stompPassenger.subscribe('/user/queue/ride', (message) => {
+                console.log('Ride updates: ' + message.body);
             });
+
         })
 
     });
