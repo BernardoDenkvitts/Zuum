@@ -3,13 +3,17 @@ package com.example.zuum.Financial;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
 import com.example.zuum.Common.Exception.NotFoundException;
+import com.example.zuum.Driver.DriverModel;
 import com.example.zuum.Driver.DriverRepository;
 import com.example.zuum.Ride.RideRepository;
+import com.example.zuum.User.UserModel;
 import com.example.zuum.User.UserRepository;
+import com.example.zuum.User.Exception.MissingDriverProfileException;
 
 @Service
 public class FinancialService {
@@ -24,18 +28,25 @@ public class FinancialService {
         this.driverRepository = driverRepository;
     }
 
-    public BigDecimal getSumPriceBetweenDates(Integer passengerId, Integer driverId, LocalDate startDate, LocalDate endDate) {
-        if (passengerId != null) {
-            userRepository.findById(passengerId).orElseThrow(() -> new NotFoundException("Passenger with id " + passengerId));
-        } else if (driverId != null) {
-            driverRepository.findById(driverId).orElseThrow(() -> new NotFoundException("Driver with id " + driverId));
-        }
+    public BigDecimal getSumPriceBetweenDates(Integer userId, LocalDate startDate, LocalDate endDate, boolean isDriver) {
+        LocalDateTime startDateTime = startDate != null ? startDate.atStartOfDay() : LocalDateTime.now();
+        LocalDateTime endDateTime = endDate != null ? endDate.atTime(23, 59, 59) : LocalDateTime.now();
+        
+        if (isDriver) {
+            DriverModel driver = driverRepository.findByUserId(userId)
+            .orElseThrow(() -> new MissingDriverProfileException());
+            
+            return getTotalRideAmount(null, driver.getId(), startDateTime, endDateTime);
+        } 
 
-        LocalDateTime starDateTime = startDate.atStartOfDay();
-        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
-        BigDecimal total = rideRepository.sumRidesAmountsBetweenDates(passengerId, driverId, starDateTime, endDateTime);
+        UserModel user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User with id " + userId));
 
-        return total != null ? total : BigDecimal.valueOf(0);
+        return getTotalRideAmount(user.getId(), null, startDateTime, endDateTime);
+    }
+
+    private BigDecimal getTotalRideAmount(Integer passengerId, Integer driverId, LocalDateTime start, LocalDateTime end) {
+        return Optional.ofNullable(rideRepository.sumRidesAmountsBetweenDates(passengerId, driverId, start, end))
+                .orElse(BigDecimal.ZERO);
     }
 
 }

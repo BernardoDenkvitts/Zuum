@@ -16,24 +16,24 @@ import com.example.zuum.Financial.Dto.TotalRideAmountDTO;
 @RequestMapping("/financial")
 public record FinancialController(FinancialService service) {
 
-    @GetMapping("/{driverId}/earn")
+    @GetMapping("/{userId}/earn")
     public ResponseEntity<TotalRideAmountDTO> getDriverEarns(
-        @PathVariable Integer driverId,
-        @RequestParam(required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam(required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+        @PathVariable Integer userId,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
-        TotalRideAmountDTO dto = new TotalRideAmountDTO(service.getSumPriceBetweenDates(null, driverId, startDate, endDate));
+        TotalRideAmountDTO dto = new TotalRideAmountDTO(service.getSumPriceBetweenDates(userId, startDate, endDate, true));
         
         return ResponseEntity.ok(dto);
     }
 
-    @GetMapping("/{passengerId}/expense")
-    public ResponseEntity<TotalRideAmountDTO> getPassengerExpenses(
-        @PathVariable Integer passengerId,
-        @RequestParam(required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam(required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
+    @GetMapping("/{userId}/expense")
+    public ResponseEntity<TotalRideAmountDTO> getUserExpenses(
+        @PathVariable Integer userId,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
-        TotalRideAmountDTO dto = new TotalRideAmountDTO(service.getSumPriceBetweenDates(passengerId, null, startDate, endDate));
+        TotalRideAmountDTO dto = new TotalRideAmountDTO(service.getSumPriceBetweenDates(userId, startDate, endDate, false));
         
         return ResponseEntity.ok(dto);
     }
