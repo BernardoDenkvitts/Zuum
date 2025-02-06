@@ -16,6 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
+import com.example.zuum.Security.AuthorizationFilter;
 import com.example.zuum.Security.SecurityFilter;
 
 @Configuration
@@ -23,9 +24,11 @@ import com.example.zuum.Security.SecurityFilter;
 public class SecurityConfig {
 
     private SecurityFilter securityFilter;
+    private AuthorizationFilter authorizationFilter;
 
-    public SecurityConfig(SecurityFilter securityFilter) {
+    public SecurityConfig(SecurityFilter securityFilter, AuthorizationFilter authorizationFilter) {
         this.securityFilter = securityFilter;
+        this.authorizationFilter = authorizationFilter;
     }
 
 
@@ -35,13 +38,15 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
                     config.setAllowedOriginPatterns(List.of("http://localhost:*", "http://127.0.0.1:*"));
-                    config.setAllowedMethods(List.of("GET", "POST"));
+                    config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH"));
                     config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
                     config.setAllowCredentials(true);
                     
                     return config;
                 }))
+
                 .csrf(csrf -> csrf.disable())
+
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))         
                 .authorizeHttpRequests(authorize -> authorize
                     .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
@@ -49,7 +54,10 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/ws/zuum/**").permitAll()
                     .anyRequest().authenticated()
                 )
+
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(authorizationFilter, SecurityFilter.class)
+                
                 .build();
     }
 
