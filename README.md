@@ -32,7 +32,7 @@ Zuum is a backend application for a real-time ride-hailing system. Passengers re
 
 - <b>WebSocket & STOMP</b> - STOMP is a messaging protocol that allows clients to communicate with message brokers. In Spring Boot, STOMP is often used over WebSocket to facilitate seamless real-time communication between clients and servers. 
 
-- <b>Drools Rule Engine</b> - A powerful business rule management system used to dynamically determine ride prices based on various factors such as time of day, ride frequency, and demand. It allows flexible, scalable, and maintainable rule configuration. The application contains the following rules
+- <b>Drools Rule Engine</b> - A powerful business rule management system used to dynamically determine ride prices based on various factors such as time of day, ride frequency, and demand. It allows flexible, scalable, and maintainable rule configuration.
 
 - <b>Flyway</b> - Manages database versioning and migrations
 
