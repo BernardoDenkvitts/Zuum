@@ -53,6 +53,12 @@ public class TokenService {
         return decoded.getClaim("email").asString();
     }
 
+    public Integer getSubject(String token) {
+        DecodedJWT decoded = validateToken(token);
+        
+        return Integer.valueOf(decoded.getSubject());
+    }
+
     private Instant genExpirationDate() {
         ZoneId sysZone = ZoneId.systemDefault();
         ZoneOffset offset = sysZone.getRules().getOffset(LocalDateTime.now());
