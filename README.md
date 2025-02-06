@@ -10,7 +10,7 @@
   <a href="#📖-api-reference">API Reference</a> &#xa0;
 </p>
 
-Zuum is a backend application for a real-time ride-hailing system. Passengers request rides, drivers get instant notifications, and once a ride is accepted, passengers can track their driver’s location in real time.
+Zuum is a backend application for a real-time ride-hailing system. Passengers request rides, drivers get instant notifications, and once a ride is accepted, passengers can track their driver’s location in real-time.
 
 ## 🌟 Main Features
 
@@ -18,11 +18,11 @@ Zuum is a backend application for a real-time ride-hailing system. Passengers re
 
  - <b>Real Time Notification</b> - Drivers receive instantaneous alerts of new ride requests if they are within a range of 6 kilometers of the Origin point, and users receive real-time updates about their current ride.
  
- - <b>Location Updated in Real Time</b> - Drivers can update their location in real time, and passengers can track their location.
+ - <b>Location Updated in Real Time</b> - Drivers can update their location in real-time, and passengers can track their location.
  
- - <b>Dynamic Price Rules</b> - The ride’ price is calculated dynamic, based on factors, such as time, frequency and demand.
+ - <b>Dynamic Price Rules</b> - The ride’s price is calculated dynamically, based on factors, such as time, frequency, and demand.
  
- - <b>Secure Authentication</b> - Jason Web Token (JWT) to guarantee security access to the API.
+ - <b>Secure Authentication</b> - JSON Web Token (JWT) to guarantee security access to the API.
 
 ## 🚀 Technologies
 
