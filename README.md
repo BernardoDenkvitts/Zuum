@@ -2,12 +2,12 @@
 
 <p align="center">
   <a href="#about">About</a> &#xa0; | &#xa0;
-  <a href="#🌟-main-features">Main Features</a> &#xa0; | &#xa0;
-  <a href="#🚀-technologies">Technologies</a> &#xa0; | &#xa0;
-  <a href="#📃-rules-to-determine-the-ride-price">Rules to determine the ride price</a> &#xa0; | &#xa0;
-  <a href="#how-to-use-the-real-time-feature">How to use the real-time feature</a> &#xa0; | &#xa0;
-  <a href="#🚩-getting-started">Getting Started</a> &#xa0; | &#xa0;
-  <a href="#📖-api-reference">API Reference</a> &#xa0;
+  <a href="#-main-features">Main Features</a> &#xa0; | &#xa0;
+  <a href="#-technologies">Technologies</a> &#xa0; | &#xa0;
+  <a href="#-rules-to-determine-the-ride-price">Rules to determine the ride price</a> &#xa0; | &#xa0;
+  <a href="#How-to-use-the-real-time-feature">How to use the real-time feature</a> &#xa0; | &#xa0;
+  <a href="#-getting-started">Getting Started</a> &#xa0; | &#xa0;
+  <a href="#-api-reference">API Reference</a> 
 </p>
 
 Zuum is a backend application for a real-time ride-hailing system. Passengers request rides, drivers get instant notifications, and once a ride is accepted, passengers can track their driver’s location in real-time.
@@ -55,7 +55,7 @@ Obs - The default price is 0.8 multiplied by the distance in kilometers
 
 -	If there are more than 30 active rides (non-pending, non-completed) in the last hour, all rides will be 10% more expensive.
 
-## How to use the real-time feature ?
+## How to use the real-time feature
 Zuum leverages STOMP over WebSocket to provide real-time communication. STOMP follows a publish-subscribe messaging model, where clients subscribe to specific queues or topics to receive updates
 
 ### 📡 Connection Details
@@ -82,7 +82,7 @@ Zuum leverages STOMP over WebSocket to provide real-time communication. STOMP fo
         }
 
 ### 🚗 For Passengers
-<b>Queues to Receive Ride Updates</b>
+<b>Queue to Receive Ride Updates</b>
 
 -  <b>/user/queue/ride</b> → Receives real-time updates about the ride status and driver location
 
